@@ -20,7 +20,7 @@ TestRunner.describe("Board.ExpandSpecialEffects", function()
         local matches = { ["4:4"] = true }
 
         -- When
-        local expanded = Board.ExpandSpecialEffects(board, matches)
+        local expanded, effects = Board.ExpandSpecialEffects(board, matches)
 
         -- Then
         local count = 0
@@ -28,6 +28,37 @@ TestRunner.describe("Board.ExpandSpecialEffects", function()
             count = count + 1
         end
         TestRunner.assertEqual(9, count)
+        TestRunner.assertEqual(1, #effects)
+        TestRunner.assertEqual("bomb", effects[1].effectType)
+        TestRunner.assertEqual(4, effects[1].row)
+        TestRunner.assertEqual(4, effects[1].column)
+        TestRunner.assertEqual(1, effects[1].radius)
+    end)
+
+    TestRunner.it("reports every bomb in a chain reaction", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[4][4] = cell(1, "explosive")
+        board[4][5] = cell(2, "explosive")
+
+        -- When
+        local _, effects = Board.ExpandSpecialEffects(
+            board,
+            { ["4:4"] = true }
+        )
+
+        -- Then
+        TestRunner.assertEqual(2, #effects)
+        TestRunner.assertEqual(4, effects[1].row)
+        TestRunner.assertEqual(4, effects[1].column)
+        TestRunner.assertEqual(4, effects[2].row)
+        TestRunner.assertEqual(5, effects[2].column)
     end)
 
     TestRunner.it("clears a selected color with a color gem", function()
@@ -117,12 +148,52 @@ TestRunner.describe("Board.TrySwap color gem", function()
         board[1][2] = cell(6)
 
         -- When
-        local accepted, colorMatches = Board.TrySwap(board, 1, 1, 1, 2)
+        local accepted, colorMatches, effects = Board.TrySwap(
+            board,
+            1,
+            1,
+            1,
+            2
+        )
 
         -- Then
         TestRunner.assertTrue(accepted)
         TestRunner.assertTrue(colorMatches["1:2"])
         TestRunner.assertTrue(colorMatches["1:1"])
+        TestRunner.assertEqual(1, #effects)
+        TestRunner.assertEqual("spark", effects[1].effectType)
+        TestRunner.assertEqual(1, effects[1].row)
+        TestRunner.assertEqual(2, effects[1].column)
+        TestRunner.assertEqual(6, effects[1].gemType)
+    end)
+
+    TestRunner.it("turns matching gems into bombs when crossed with a bomb", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[4][4] = cell(7, "color")
+        board[4][5] = cell(2, "explosive")
+        board[2][2] = cell(2)
+        board[7][7] = cell(2)
+
+        -- When
+        local accepted, matches = Board.TrySwap(board, 4, 4, 4, 5)
+        local expanded, effects = Board.ExpandSpecialEffects(board, matches)
+
+        -- Then
+        TestRunner.assertTrue(accepted)
+        TestRunner.assertEqual("explosive", board[4][4].special)
+        TestRunner.assertEqual("explosive", board[2][2].special)
+        TestRunner.assertEqual("explosive", board[7][7].special)
+        TestRunner.assertEqual("color", board[4][5].special)
+        TestRunner.assertEqual(3, #effects)
+        TestRunner.assertTrue(expanded["1:1"])
+        TestRunner.assertTrue(expanded["8:8"])
     end)
 end)
 
@@ -140,7 +211,13 @@ TestRunner.describe("Board.TrySwap explosive gems", function()
         board[4][5] = cell(2, "explosive")
 
         -- When
-        local accepted, blastCells = Board.TrySwap(board, 4, 4, 4, 5)
+        local accepted, blastCells, effects = Board.TrySwap(
+            board,
+            4,
+            4,
+            4,
+            5
+        )
 
         -- Then
         local clearedCount = 0
@@ -156,6 +233,11 @@ TestRunner.describe("Board.TrySwap explosive gems", function()
         TestRunner.assertEqual(nil, blastCells["6:8"])
         TestRunner.assertEqual(2, board[4][4].gemType)
         TestRunner.assertEqual(1, board[4][5].gemType)
+        TestRunner.assertEqual(1, #effects)
+        TestRunner.assertEqual("bombCombo", effects[1].effectType)
+        TestRunner.assertEqual(4, effects[1].row)
+        TestRunner.assertEqual(5, effects[1].column)
+        TestRunner.assertEqual(2, effects[1].radius)
     end)
 
     TestRunner.it("centers a vertical blast on the destination", function()

@@ -43,6 +43,7 @@ TestRunner.describe("MovePlanner.Plan", function()
         TestRunner.assertEqual(originalGem, board[1][2].gemType)
         TestRunner.assertEqual("swap", plan.steps[1].kind)
         TestRunner.assertEqual("clear", plan.steps[2].kind)
+        TestRunner.assertEqual(0, #plan.steps[2].effects)
         TestRunner.assertEqual("settle", plan.steps[3].kind)
     end)
 
@@ -94,6 +95,73 @@ TestRunner.describe("MovePlanner.Plan", function()
         TestRunner.assertEqual("swap", plan.steps[1].kind)
         TestRunner.assertEqual("clear", plan.steps[2].kind)
         TestRunner.assertEqual(25, clearedCount)
+        TestRunner.assertEqual(1, #plan.steps[2].effects)
+        TestRunner.assertEqual(
+            "bombCombo",
+            plan.steps[2].effects[1].effectType
+        )
+        TestRunner.assertEqual(4, plan.steps[2].effects[1].row)
+        TestRunner.assertEqual(5, plan.steps[2].effects[1].column)
+    end)
+
+    TestRunner.it("passes a spark trigger to the clear animation", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = {
+                    gemType = ((row + column) % 7) + 1,
+                }
+            end
+        end
+        board[1][1] = { gemType = 1, special = "color" }
+        board[1][2] = { gemType = 6 }
+        math.randomseed(13579)
+
+        -- When
+        local plan = MovePlanner.Plan(board, 0, 1, 1, 1, 2)
+
+        -- Then
+        local effects = plan.steps[2].effects
+        TestRunner.assertEqual(1, #effects)
+        TestRunner.assertEqual("spark", effects[1].effectType)
+        TestRunner.assertEqual(1, effects[1].row)
+        TestRunner.assertEqual(2, effects[1].column)
+        TestRunner.assertEqual(6, effects[1].gemType)
+    end)
+
+    TestRunner.it("animates every converted bomb in a spark-bomb swap", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = { gemType = 1 }
+            end
+        end
+        board[4][4] = { gemType = 7, special = "color" }
+        board[4][5] = { gemType = 2, special = "explosive" }
+        board[2][2] = { gemType = 2 }
+        board[7][7] = { gemType = 2 }
+        math.randomseed(97531)
+
+        -- When
+        local plan = MovePlanner.Plan(board, 0, 4, 4, 4, 5)
+
+        -- Then
+        local bombEffects = 0
+        for _, effect in ipairs(plan.steps[2].effects) do
+            if effect.effectType == "bomb" then
+                bombEffects = bombEffects + 1
+            end
+        end
+
+        TestRunner.assertTrue(plan.accepted)
+        TestRunner.assertEqual("spark", plan.steps[2].effects[1].effectType)
+        TestRunner.assertEqual(3, bombEffects)
+        TestRunner.assertTrue(plan.steps[2].positions["1:1"])
+        TestRunner.assertTrue(plan.steps[2].positions["8:8"])
     end)
 
     TestRunner.it("uses the special-preserving reshuffle path", function()

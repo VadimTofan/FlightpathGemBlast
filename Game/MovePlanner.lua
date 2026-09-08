@@ -34,6 +34,24 @@ local function copyPositions(positions)
     return copy
 end
 
+local function appendBombEffects(target, bombEffects, initialEffects)
+    local excludedBombs
+
+    for _, effect in ipairs(initialEffects) do
+        if effect.effectType == "bombCombo" then
+            excludedBombs = effect.excludedBombs
+            break
+        end
+    end
+
+    for _, effect in ipairs(bombEffects) do
+        local position = effect.row .. ":" .. effect.column
+        if not excludedBombs or not excludedBombs[position] then
+            target[#target + 1] = effect
+        end
+    end
+end
+
 local function recordFalls(board)
     local falls = {}
 
@@ -79,9 +97,17 @@ local function recordRefills(board)
     return refills
 end
 
-local function addResolutionSteps(plan, board, score, initialMatches, random)
+local function addResolutionSteps(
+    plan,
+    board,
+    score,
+    initialMatches,
+    initialEffects,
+    random
+)
     local cascadeDepth = 1
     local matches = initialMatches
+    local effects = initialEffects or {}
 
     while matches or Board.HasMatch(board) do
         matches = matches or Board.FindMatches(board)
@@ -104,7 +130,9 @@ local function addResolutionSteps(plan, board, score, initialMatches, random)
             end
         end
 
-        matches = Board.ExpandSpecialEffects(board, matches)
+        local bombEffects
+        matches, bombEffects = Board.ExpandSpecialEffects(board, matches)
+        appendBombEffects(effects, bombEffects, effects)
         local clearPositions = copyPositions(matches)
         local cleared = Board.ClearCells(board, matches)
         score = score + Scoring.PointsForClear(cleared, cascadeDepth)
@@ -119,6 +147,7 @@ local function addResolutionSteps(plan, board, score, initialMatches, random)
         plan.steps[#plan.steps + 1] = {
             kind = "clear",
             positions = clearPositions,
+            effects = effects,
             score = score,
             special = specialRow and {
                 row = specialRow,
@@ -142,6 +171,7 @@ local function addResolutionSteps(plan, board, score, initialMatches, random)
 
         cascadeDepth = cascadeDepth + 1
         initialMatches = nil
+        effects = {}
         matches = nil
     end
 
@@ -158,7 +188,7 @@ function MovePlanner.Plan(
     random
 )
     local board = cloneBoard(liveBoard)
-    local accepted, specialMatches = Board.TrySwap(
+    local accepted, specialMatches, specialEffects = Board.TrySwap(
         board,
         fromRow,
         fromColumn,
@@ -195,6 +225,7 @@ function MovePlanner.Plan(
         board,
         score,
         specialMatches,
+        specialEffects,
         random
     )
 

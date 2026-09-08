@@ -99,6 +99,19 @@ local function getCombinedBombBlastCells(centerRow, centerColumn)
     return cells
 end
 
+local function turnMatchedColorIntoBombs(board, matches, gemType)
+    for position in pairs(matches) do
+        local row, column = string.match(position, "^(%d+):(%d+)$")
+        local cell = board[tonumber(row)][tonumber(column)]
+
+        if cell
+            and cell.gemType == gemType
+            and cell.special ~= "color" then
+            cell.special = "explosive"
+        end
+    end
+end
+
 function Board.TrySwap(board, firstRow, firstColumn, secondRow, secondColumn)
     if not Board.AreAdjacent(
         firstRow,
@@ -116,11 +129,24 @@ function Board.TrySwap(board, firstRow, firstColumn, secondRow, secondColumn)
     local secondIsColor = secondCell.special == "color"
     local firstIsExplosive = firstCell.special == "explosive"
     local secondIsExplosive = secondCell.special == "explosive"
+    local isColorBombSwap = firstIsColor and secondIsExplosive
+        or secondIsColor and firstIsExplosive
 
     if firstIsExplosive and secondIsExplosive then
         swap(board, firstRow, firstColumn, secondRow, secondColumn)
 
-        return true, getCombinedBombBlastCells(secondRow, secondColumn)
+        return true, getCombinedBombBlastCells(secondRow, secondColumn), {
+            {
+                effectType = "bombCombo",
+                row = secondRow,
+                column = secondColumn,
+                radius = 2,
+                excludedBombs = {
+                    [firstRow .. ":" .. firstColumn] = true,
+                    [secondRow .. ":" .. secondColumn] = true,
+                },
+            },
+        }
     end
 
     if firstIsColor or secondIsColor then
@@ -135,7 +161,18 @@ function Board.TrySwap(board, firstRow, firstColumn, secondRow, secondColumn)
         local colorColumn = firstIsColor and secondColumn or firstColumn
         matches[colorRow .. ":" .. colorColumn] = true
 
-        return true, matches
+        if isColorBombSwap then
+            turnMatchedColorIntoBombs(board, matches, clearedGemType)
+        end
+
+        return true, matches, {
+            {
+                effectType = "spark",
+                row = colorRow,
+                column = colorColumn,
+                gemType = clearedGemType,
+            },
+        }
     end
 
     swap(board, firstRow, firstColumn, secondRow, secondColumn)
@@ -211,6 +248,7 @@ end
 function Board.ExpandSpecialEffects(board, matches)
     local expanded = {}
     local pending = {}
+    local effects = {}
 
     for position in pairs(matches) do
         expanded[position] = true
@@ -226,6 +264,13 @@ function Board.ExpandSpecialEffects(board, matches)
         local cell = board[row][column]
 
         if cell and cell.special == "explosive" then
+            effects[#effects + 1] = {
+                effectType = "bomb",
+                row = row,
+                column = column,
+                radius = 1,
+            }
+
             for targetRow = math.max(1, row - 1), math.min(8, row + 1) do
                 for targetColumn = math.max(1, column - 1),
                     math.min(8, column + 1) do
@@ -241,7 +286,7 @@ function Board.ExpandSpecialEffects(board, matches)
         index = index + 1
     end
 
-    return expanded
+    return expanded, effects
 end
 
 function Board.ColorClearCells(board, gemType)

@@ -53,4 +53,29 @@ TestRunner.describe("AnimationDirector", function()
         -- Then
         TestRunner.assertEqual(0.28, duration)
     end)
+
+    TestRunner.it("allows a double-bomb burst to finish before settling", function()
+        -- Given
+        local duration
+        local director = AnimationDirector.New({
+            startStep = function(_, stepDuration)
+                duration = stepDuration
+            end,
+        })
+        local plan = {
+            steps = {
+                {
+                    kind = "clear",
+                    positions = {},
+                    effects = { { effectType = "bombCombo" } },
+                },
+            },
+        }
+
+        -- When
+        director:Start(plan)
+
+        -- Then
+        TestRunner.assertEqual(0.38, duration)
+    end)
 end)

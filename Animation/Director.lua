@@ -1,5 +1,8 @@
 local _, addon = ...
 
+local SpecialEffects = type(addon) == "table" and addon.SpecialEffects
+    or require("Animation.SpecialEffects")
+
 local AnimationDirector = {}
 AnimationDirector.__index = AnimationDirector
 
@@ -9,7 +12,7 @@ local function stepDuration(step)
     end
 
     if step.kind == "clear" then
-        return 0.18
+        return SpecialEffects.GetClearDuration(step.effects)
     end
 
     if step.kind == "reshuffle" then

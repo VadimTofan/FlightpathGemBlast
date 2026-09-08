@@ -65,10 +65,19 @@ function UI:RenderBoard(board)
             button.gem:SetAlpha(1)
             button.gem:SetShown(not isColorSpecial)
 
+            button.effectMarker:SetSize(CELL_SIZE - 2, CELL_SIZE - 2)
+            button.effectMarker:SetRotation(0)
+            button.effectMarker:SetAlpha(0)
+            button.effectMarker:Hide()
+
+            button.specialMarker:SetSize(CELL_SIZE - 2, CELL_SIZE - 2)
+            button.specialMarker:SetAlpha(1)
             button.specialMarker:SetVertexColor(0.75, 0.9, 1, 1)
             button.specialMarker:SetShown(isColorSpecial)
+            button.bombMarker:SetAlpha(1)
             button.bombMarker:SetShown(isExplosive)
             for _, border in ipairs(button.specialBorders) do
+                border:SetAlpha(1)
                 border:SetColorTexture(
                     borderRed,
                     borderGreen,
@@ -360,6 +369,14 @@ end
 function UI:StartAnimationStep(step)
     self.animationOffsets = {}
 
+    if step.kind == "clear" then
+        for row = 1, BOARD_SIZE do
+            for column = 1, BOARD_SIZE do
+                self.cells[row][column].effectMarker:Hide()
+            end
+        end
+    end
+
     if step.kind == "reshuffle" then
         addon.Announcement.NotifyNoMoves(
             function(message)
@@ -423,11 +440,40 @@ function UI:UpdateAnimationStep(step, progress)
     if step.kind == "clear" then
         for position in pairs(step.positions) do
             local row, column = string.match(position, "^(%d+):(%d+)$")
-            local gem = self.cells[tonumber(row)][tonumber(column)].gem
-            local size = (CELL_SIZE - 2) * (1 - progress * 0.65)
+            row = tonumber(row)
+            column = tonumber(column)
 
-            gem:SetSize(size, size)
-            gem:SetAlpha(1 - progress)
+            local button = self.cells[row][column]
+            local gemScale,
+                gemAlpha,
+                effectScale,
+                effectAlpha,
+                rotation,
+                red,
+                green,
+                blue = addon.SpecialEffects.GetCellVisual(
+                    step.effects,
+                    row,
+                    column,
+                    progress
+                )
+            local gemSize = (CELL_SIZE - 2) * gemScale
+            local effectSize = (CELL_SIZE - 2) * effectScale
+
+            button.gem:SetSize(gemSize, gemSize)
+            button.gem:SetAlpha(gemAlpha)
+            button.specialMarker:SetSize(gemSize, gemSize)
+            button.specialMarker:SetAlpha(gemAlpha)
+            button.bombMarker:SetAlpha(gemAlpha)
+            for _, border in ipairs(button.specialBorders) do
+                border:SetAlpha(gemAlpha)
+            end
+
+            button.effectMarker:SetSize(effectSize, effectSize)
+            button.effectMarker:SetRotation(rotation)
+            button.effectMarker:SetVertexColor(red, green, blue, 1)
+            button.effectMarker:SetAlpha(effectAlpha)
+            button.effectMarker:SetShown(effectAlpha > 0)
         end
 
         self:RefreshStatus(step.score)
@@ -467,6 +513,14 @@ function UI:UpdateAnimationStep(step, progress)
 end
 
 function UI:FinishAnimationStep(step)
+    if step.kind == "clear" then
+        for row = 1, BOARD_SIZE do
+            for column = 1, BOARD_SIZE do
+                self.cells[row][column].effectMarker:Hide()
+            end
+        end
+    end
+
     if step.kind == "swap" and step.valid then
         self:RenderBoard(step.board)
     elseif step.kind == "swap" then
@@ -595,6 +649,13 @@ local function createCell(parent, row, column)
     button.specialMarker:SetTexture("Interface\\Cooldown\\star4")
     button.specialMarker:SetBlendMode("ADD")
     button.specialMarker:Hide()
+
+    button.effectMarker = button:CreateTexture(nil, "OVERLAY")
+    button.effectMarker:SetPoint("CENTER")
+    button.effectMarker:SetSize(CELL_SIZE - 2, CELL_SIZE - 2)
+    button.effectMarker:SetTexture("Interface\\Cooldown\\star4")
+    button.effectMarker:SetBlendMode("ADD")
+    button.effectMarker:Hide()
 
     button.bombMarker = button:CreateTexture(nil, "OVERLAY")
     button.bombMarker:SetPoint("TOPRIGHT", 1, 1)

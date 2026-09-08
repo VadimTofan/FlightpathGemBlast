@@ -27,5 +27,27 @@ TestRunner.describe("AddOn metadata", function()
         TestRunner.assertTrue(hasBlueGemIcon)
         TestRunner.assertTrue(iconExists)
     end)
-end)
 
+    TestRunner.it("loads special effects before the animation director", function()
+        -- Given
+        local tocFile = assert(io.open("BetterBejeweled.toc", "r"))
+        local toc = tocFile:read("*a")
+        tocFile:close()
+
+        -- When
+        local effectsPosition = toc:find(
+            "Animation\\SpecialEffects.lua",
+            1,
+            true
+        )
+        local directorPosition = toc:find(
+            "Animation\\Director.lua",
+            1,
+            true
+        )
+
+        -- Then
+        TestRunner.assertTrue(effectsPosition ~= nil)
+        TestRunner.assertTrue(effectsPosition < directorPosition)
+    end)
+end)

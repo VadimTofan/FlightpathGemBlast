@@ -24,6 +24,7 @@ Communication.lua
 Persistence.lua
 Game\MovePlanner.lua
 Game\Controller.lua
+Animation\SpecialEffects.lua
 Animation\Director.lua
 UI.lua
 Launcher.lua

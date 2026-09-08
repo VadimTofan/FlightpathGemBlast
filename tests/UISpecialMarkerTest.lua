@@ -90,6 +90,54 @@ TestRunner.describe("UI special-gem movement", function()
     end)
 end)
 
+TestRunner.describe("UI special-effect animation", function()
+    TestRunner.it("reuses one Blizzard effect texture per cell", function()
+        -- Given
+        local file = assert(io.open("UI.lua", "r"))
+        local source = file:read("*a")
+        file:close()
+
+        -- When
+        local createsPooledMarker = source:find(
+            'button.effectMarker = button:CreateTexture(nil, "OVERLAY")',
+            1,
+            true
+        ) ~= nil
+        local usesBlizzardStar = source:find(
+            'button.effectMarker:SetTexture("Interface\\\\Cooldown\\\\star4")',
+            1,
+            true
+        ) ~= nil
+        local usesVisualCalculator = source:find(
+            "addon.SpecialEffects.GetCellVisual(",
+            1,
+            true
+        ) ~= nil
+        local updateStart = assert(source:find(
+            "function UI:UpdateAnimationStep",
+            1,
+            true
+        ))
+        local updateEnd = assert(source:find(
+            "function UI:FinishAnimationStep",
+            updateStart,
+            true
+        ))
+        local updateSource = source:sub(updateStart, updateEnd - 1)
+        local allocatesDuringUpdate = updateSource:find(
+            "CreateTexture",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(createsPooledMarker)
+        TestRunner.assertTrue(usesBlizzardStar)
+        TestRunner.assertTrue(usesVisualCalculator)
+        TestRunner.assertFalse(allocatesDuringUpdate)
+    end)
+end)
+
 TestRunner.describe("UI explosive-gem marker", function()
     TestRunner.it("uses a corner badge and cell outline", function()
         -- Given
