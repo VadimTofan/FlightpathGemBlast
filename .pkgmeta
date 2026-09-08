@@ -1,6 +1,8 @@
 package-as: BetterBejeweled
 
 ignore:
+  - .github
   - .gitignore
   - .pkgmeta
+  - README.md
   - tests

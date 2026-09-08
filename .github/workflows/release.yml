@@ -1,0 +1,86 @@
+name: Release to CurseForge
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_TOKEN }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Package addon
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -d
+
+      - name: Validate release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          archives=(.release/BetterBejeweled-*.zip)
+          if (( ${#archives[@]} != 1 )); then
+            echo "Expected one release archive, found ${#archives[@]}."
+            exit 1
+          fi
+
+          archive="${archives[0]}"
+          unzip -t "$archive"
+          archive_entries="$(unzip -Z1 "$archive")"
+
+          if grep -Ev '^BetterBejeweled/' <<< "$archive_entries" \
+              | grep -q .; then
+            echo "Release archive contains an unexpected root path."
+            exit 1
+          fi
+
+          if grep -Eq '(^|/)\.\.(/|$)' <<< "$archive_entries"; then
+            echo "Release archive contains an unsafe path."
+            exit 1
+          fi
+
+          while IFS= read -r entry; do
+            entry="${entry%$'\r'}"
+            if [[ -z "$entry" || "$entry" == \#* ]]; then
+              continue
+            fi
+
+            packaged_entry="BetterBejeweled/${entry//\\//}"
+            if ! grep -Fxq "$packaged_entry" <<< "$archive_entries"; then
+              echo "Missing TOC file: $packaged_entry"
+              exit 1
+            fi
+          done < BetterBejeweled.toc
+
+          while IFS= read -r asset; do
+            packaged_asset="BetterBejeweled/$asset"
+            if ! grep -Fxq "$packaged_asset" <<< "$archive_entries"; then
+              echo "Missing runtime asset: $packaged_asset"
+              exit 1
+            fi
+          done < <(git ls-files 'Media/*')
+
+          if grep -Eq \
+              '^BetterBejeweled/(tests/|\.github/|README\.md$|\.pkgmeta$|\.gitignore$)' \
+              <<< "$archive_entries"; then
+            echo "Release archive contains development files."
+            exit 1
+          fi
+
+      - name: Upload to CurseForge
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -c
