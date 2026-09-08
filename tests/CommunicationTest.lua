@@ -392,6 +392,27 @@ TestRunner.describe("Communication encoded scores", function()
         TestRunner.assertEqual("CHANNEL", sent.channel)
         TestRunner.assertEqual(7, sent.target)
     end)
+
+    TestRunner.it("limits queued packets when public sends cannot drain", function()
+        -- Given
+        local communication = Communication.New(createApi())
+        local firstEncoded = encodedScore({
+            accountId = "remote0000000001",
+        })
+
+        -- When
+        communication:QueuePublicPacket(firstEncoded)
+        for index = 2, 60 do
+            local encoded = encodedScore({
+                accountId = string.format("remote%010d", index),
+            })
+            communication:QueuePublicPacket(encoded)
+        end
+
+        -- Then
+        TestRunner.assertEqual(50, #communication.publicQueue)
+        TestRunner.assertEqual(nil, communication.queuedPublicPackets[firstEncoded])
+    end)
 end)
 
 TestRunner.describe("Communication public leaderboard", function()
@@ -472,6 +493,29 @@ TestRunner.describe("Communication public leaderboard", function()
             100,
             communication.publicScores["Jaina-Proudmoore"].updatedAt
         )
+    end)
+
+    TestRunner.it("limits cached public senders", function()
+        -- Given
+        local communication = Communication.New(createApi())
+
+        -- When
+        for index = 1, 120 do
+            communication:HandleMessage(
+                "BetterBejeweled",
+                "P:1:S:1250:4",
+                "CHANNEL",
+                "Player" .. index,
+                "7. BetterBejeweled"
+            )
+        end
+
+        -- Then
+        local cachedSenders = 0
+        for _ in pairs(communication.publicScores) do
+            cachedSenders = cachedSenders + 1
+        end
+        TestRunner.assertEqual(100, cachedSenders)
     end)
 
     TestRunner.it("accepts score requests only from the public channel", function()

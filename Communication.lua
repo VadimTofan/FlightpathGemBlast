@@ -6,6 +6,8 @@ Communication.__index = Communication
 local PREFIX = "BetterBejeweled"
 local PUBLIC_BROADCAST_INTERVAL = 5
 local PUBLIC_QUEUE_INTERVAL = 1
+local MAX_PUBLIC_QUEUE = 50
+local MAX_PUBLIC_SCORES = 100
 local MAX_SEEN_PACKETS = 500
 local ALLOWED_CHANNELS = {
     INSTANCE_CHAT = true,
@@ -27,6 +29,24 @@ local function sendSucceeded(result)
     end
 
     return result == nil or result == true
+end
+
+local function trimOldestScore(scores, maximumEntries)
+    local count = 0
+    local oldestName
+    local oldestUpdatedAt
+
+    for name, score in pairs(scores) do
+        count = count + 1
+        if not oldestUpdatedAt or score.updatedAt < oldestUpdatedAt then
+            oldestName = name
+            oldestUpdatedAt = score.updatedAt
+        end
+    end
+
+    if count > maximumEntries then
+        scores[oldestName] = nil
+    end
 end
 
 function Communication.New(api)
@@ -69,6 +89,11 @@ function Communication:QueuePublicPacket(encoded)
         or #encoded > 255
         or self.queuedPublicPackets[encoded] then
         return false
+    end
+
+    if #self.publicQueue >= MAX_PUBLIC_QUEUE then
+        local oldestEncoded = table.remove(self.publicQueue, 1)
+        self.queuedPublicPackets[oldestEncoded] = nil
     end
 
     self.publicQueue[#self.publicQueue + 1] = encoded
@@ -277,6 +302,9 @@ function Communication:HandleMessage(prefix, message, channel, sender, target)
         level = tonumber(levelText),
         updatedAt = isPublicChannel and self.api.now() or nil,
     }
+    if isPublicChannel then
+        trimOldestScore(scores, MAX_PUBLIC_SCORES)
+    end
 
     return true, "score"
 end
