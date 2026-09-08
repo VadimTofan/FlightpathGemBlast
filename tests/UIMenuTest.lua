@@ -52,6 +52,51 @@ TestRunner.describe("UI menu", function()
         TestRunner.assertTrue(checksMenuFirst)
         TestRunner.assertTrue(hidesMenuAndReturns)
     end)
+
+    TestRunner.it("omits redundant new-game and close-game actions", function()
+        -- Given
+        local uiFile = assert(io.open("UI.lua", "r"))
+        local uiSource = uiFile:read("*a")
+        uiFile:close()
+
+        local coreFile = assert(io.open("Core.lua", "r"))
+        local coreSource = coreFile:read("*a")
+        coreFile:close()
+
+        -- When
+        local hasNewGameButton = uiSource:find(
+            'createMenuButton(menuPanel, "New Game"',
+            1,
+            true
+        ) ~= nil
+        local hasCloseGameButton = uiSource:find(
+            'createMenuButton(menuPanel, "Close Game"',
+            1,
+            true
+        ) ~= nil
+        local hasNewGamePopup = uiSource:find(
+            "BETTERBEJEWELED_NEW_GAME",
+            1,
+            true
+        ) ~= nil
+        local exposesNewGameSession = coreSource:find(
+            "StartNewScoreSession",
+            1,
+            true
+        ) ~= nil
+        local keepsMainCloseButton = uiSource:find(
+            '"BetterBejeweledCloseButton"',
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertFalse(hasNewGameButton)
+        TestRunner.assertFalse(hasCloseGameButton)
+        TestRunner.assertFalse(hasNewGamePopup)
+        TestRunner.assertFalse(exposesNewGameSession)
+        TestRunner.assertTrue(keepsMainCloseButton)
+    end)
 end)
 
 TestRunner.describe("UI auto-toggle option", function()

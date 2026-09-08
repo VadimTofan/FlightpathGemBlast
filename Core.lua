@@ -79,12 +79,6 @@ end
 
 addon.BroadcastScore = broadcastScore
 
-local function startNewScoreSession()
-    addon.scoreSession:StartNewGame()
-end
-
-addon.StartNewScoreSession = startNewScoreSession
-
 local function hidePublicChannelMessage(_, _, ...)
     local channelBaseName = select(9, ...)
 

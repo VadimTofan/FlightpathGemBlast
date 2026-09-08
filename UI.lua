@@ -951,34 +951,18 @@ function UI:CreateMenu()
         menu:Hide()
     end)
 
-    local gameLabel = menuPanel:CreateFontString(
-        nil,
-        "OVERLAY",
-        "GameFontNormalSmall"
-    )
-    gameLabel:SetPoint("TOPLEFT", 40, -78)
-    gameLabel:SetText("GAME")
-
-    createMenuButton(menuPanel, "New Game", -96, function()
-        local popup = StaticPopup_Show("BETTERBEJEWELED_NEW_GAME")
-        if popup then
-            popup:SetFrameStrata("FULLSCREEN_DIALOG")
-            popup:SetFrameLevel(self.frame:GetFrameLevel() + 100)
-        end
-    end)
-
     local automationLabel = menuPanel:CreateFontString(
         nil,
         "OVERLAY",
         "GameFontNormalSmall"
     )
-    automationLabel:SetPoint("TOPLEFT", 40, -134)
+    automationLabel:SetPoint("TOPLEFT", 40, -78)
     automationLabel:SetText("AUTOMATION")
 
     self.autoToggleButton = createMenuButton(
         menuPanel,
         "Auto Open During Flight: On",
-        -152,
+        -96,
         function()
             BetterBejeweledDB.autoToggleEnabled =
                 not BetterBejeweledDB.autoToggleEnabled
@@ -994,7 +978,7 @@ function UI:CreateMenu()
     self.closeInCombatButton = createMenuButton(
         menuPanel,
         "Close in Combat: On",
-        -184,
+        -128,
         function()
             BetterBejeweledDB.closeInCombatEnabled =
                 not BetterBejeweledDB.closeInCombatEnabled
@@ -1011,10 +995,10 @@ function UI:CreateMenu()
         "OVERLAY",
         "GameFontNormalSmall"
     )
-    audioLabel:SetPoint("TOPLEFT", 40, -222)
+    audioLabel:SetPoint("TOPLEFT", 40, -166)
     audioLabel:SetText("AUDIO")
 
-    self.soundButton = createMenuButton(menuPanel, "Sound: On", -240, function()
+    self.soundButton = createMenuButton(menuPanel, "Sound: On", -184, function()
         addon.controller.soundEnabled = not addon.controller.soundEnabled
         self.soundButton:SetText(
             addon.controller.soundEnabled and "Sound: On" or "Sound: Off"
@@ -1027,13 +1011,13 @@ function UI:CreateMenu()
         "OVERLAY",
         "GameFontNormalSmall"
     )
-    interfaceLabel:SetPoint("TOPLEFT", 40, -278)
+    interfaceLabel:SetPoint("TOPLEFT", 40, -222)
     interfaceLabel:SetText("INTERFACE")
 
     self.scaleButton = createMenuButton(
         menuPanel,
         "Scale: 100%",
-        -296,
+        -240,
         function()
             local scale = self.frame:GetScale() + 0.1
             if scale > 1.21 then
@@ -1051,7 +1035,7 @@ function UI:CreateMenu()
         end
     )
 
-    createMenuButton(menuPanel, "Reset Position", -328, function()
+    createMenuButton(menuPanel, "Reset Position", -272, function()
         self.frame:ClearAllPoints()
         self.frame:SetPoint("CENTER")
         BetterBejeweledDB.window = {
@@ -1060,10 +1044,6 @@ function UI:CreateMenu()
             y = 0,
             scale = self.frame:GetScale(),
         }
-    end)
-
-    createMenuButton(menuPanel, "Close Game", -374, function()
-        self.frame:Hide()
     end)
 
     self.menu = menu
@@ -1241,27 +1221,6 @@ function UI:Create()
     self.animationDriver = animationDriver
     self:Refresh()
 
-    StaticPopupDialogs.BETTERBEJEWELED_NEW_GAME = {
-        text = "Start a new BetterBejeweled game?",
-        button1 = YES,
-        button2 = NO,
-        OnAccept = function()
-            addon.controller = addon.Controller.New()
-            if addon.StartNewScoreSession then
-                addon.StartNewScoreSession()
-            end
-
-            UI:Save()
-            UI:Refresh()
-
-            if addon.BroadcastScore then
-                addon.BroadcastScore(true)
-            end
-        end,
-        timeout = 0,
-        whileDead = true,
-        hideOnEscape = true,
-    }
 end
 
 function UI:Toggle()
