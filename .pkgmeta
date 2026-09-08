@@ -1,0 +1,6 @@
+package-as: BetterBejeweled
+
+ignore:
+  - .gitignore
+  - .pkgmeta
+  - tests

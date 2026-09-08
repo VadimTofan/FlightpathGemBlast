@@ -1,0 +1,28 @@
+## Interface: 120100
+## Title: BetterBejeweled
+## Notes: Play an original fantasy match-three game inside World of Warcraft.
+## Author: Vadim
+## Version: 0.1.0
+## SavedVariables: BetterBejeweledDB
+
+Game\Board.lua
+Game\Scoring.lua
+Game\Input.lua
+Game\Hint.lua
+Game\MinimapPosition.lua
+Game\Announcement.lua
+Game\Leaderboard.lua
+Game\ScorePacket.lua
+Game\ScoreSession.lua
+Game\LeaderboardStore.lua
+Game\PublicLeaderboardSeeds.lua
+Game\PublicLeaderboard.lua
+Game\AutoToggle.lua
+Communication.lua
+Persistence.lua
+Game\MovePlanner.lua
+Game\Controller.lua
+Animation\Director.lua
+UI.lua
+Launcher.lua
+Core.lua
