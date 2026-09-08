@@ -245,25 +245,60 @@ function Board.Refill(board, random)
     return added
 end
 
-function Board.ExpandSpecialEffects(board, matches)
+local function getRandomPresentGemType(board, randomFunction)
+    local presentGemTypes = {}
+    local choices = {}
+
+    for row = 1, BOARD_SIZE do
+        for column = 1, BOARD_SIZE do
+            local cell = board[row][column]
+            if cell and cell.special ~= "color" then
+                presentGemTypes[cell.gemType] = true
+            end
+        end
+    end
+
+    for gemType = 1, GEM_TYPE_COUNT do
+        if presentGemTypes[gemType] then
+            choices[#choices + 1] = gemType
+        end
+    end
+
+    if #choices == 0 then
+        return nil
+    end
+
+    return choices[randomFunction(1, #choices)]
+end
+
+function Board.ExpandSpecialEffects(board, matches, random)
+    local randomFunction = random or defaultRandom
     local expanded = {}
     local pending = {}
+    local pendingBombTriggers = {}
     local effects = {}
+    local triggeredBombs = {}
+    local triggeredSparks = {}
 
     for position in pairs(matches) do
         expanded[position] = true
         pending[#pending + 1] = position
+        pendingBombTriggers[#pendingBombTriggers + 1] = false
     end
 
     local index = 1
     while index <= #pending do
         local position = pending[index]
+        local wasHitByBomb = pendingBombTriggers[index]
         local row, column = string.match(position, "^(%d+):(%d+)$")
         row = tonumber(row)
         column = tonumber(column)
         local cell = board[row][column]
 
-        if cell and cell.special == "explosive" then
+        if cell
+            and cell.special == "explosive"
+            and not triggeredBombs[position] then
+            triggeredBombs[position] = true
             effects[#effects + 1] = {
                 effectType = "bomb",
                 row = row,
@@ -271,13 +306,45 @@ function Board.ExpandSpecialEffects(board, matches)
                 radius = 1,
             }
 
-            for targetRow = math.max(1, row - 1), math.min(8, row + 1) do
+            for targetRow = math.max(1, row - 1),
+                math.min(BOARD_SIZE, row + 1) do
                 for targetColumn = math.max(1, column - 1),
-                    math.min(8, column + 1) do
+                    math.min(BOARD_SIZE, column + 1) do
                     local target = targetRow .. ":" .. targetColumn
+                    local targetCell = board[targetRow][targetColumn]
+
                     if not expanded[target] then
                         expanded[target] = true
                         pending[#pending + 1] = target
+                        pendingBombTriggers[#pendingBombTriggers + 1] = true
+                    elseif targetCell
+                        and targetCell.special == "color"
+                        and not triggeredSparks[target] then
+                        pending[#pending + 1] = target
+                        pendingBombTriggers[#pendingBombTriggers + 1] = true
+                    end
+                end
+            end
+        elseif cell
+            and cell.special == "color"
+            and wasHitByBomb
+            and not triggeredSparks[position] then
+            triggeredSparks[position] = true
+
+            local gemType = getRandomPresentGemType(board, randomFunction)
+            if gemType then
+                effects[#effects + 1] = {
+                    effectType = "spark",
+                    row = row,
+                    column = column,
+                    gemType = gemType,
+                }
+
+                for target in pairs(Board.ColorClearCells(board, gemType)) do
+                    if not expanded[target] then
+                        expanded[target] = true
+                        pending[#pending + 1] = target
+                        pendingBombTriggers[#pendingBombTriggers + 1] = false
                     end
                 end
             end

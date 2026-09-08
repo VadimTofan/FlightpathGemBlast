@@ -61,6 +61,85 @@ TestRunner.describe("Board.ExpandSpecialEffects", function()
         TestRunner.assertEqual(5, effects[2].column)
     end)
 
+    TestRunner.it("clears a random color when a bomb consumes a spark", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[4][4] = cell(2, "explosive")
+        board[4][5] = cell(7, "color")
+        board[1][1] = cell(6)
+        board[8][8] = cell(6)
+        local randomCalls = 0
+        local function choosePurple(minimum, maximum)
+            randomCalls = randomCalls + 1
+            TestRunner.assertEqual(1, minimum)
+            TestRunner.assertEqual(3, maximum)
+
+            return 3
+        end
+
+        -- When
+        local expanded, effects = Board.ExpandSpecialEffects(
+            board,
+            { ["4:4"] = true },
+            choosePurple
+        )
+
+        -- Then
+        local sparkEffect
+        for _, effect in ipairs(effects) do
+            if effect.effectType == "spark" then
+                sparkEffect = effect
+            end
+        end
+
+        TestRunner.assertEqual(1, randomCalls)
+        TestRunner.assertTrue(expanded["1:1"])
+        TestRunner.assertTrue(expanded["8:8"])
+        TestRunner.assertEqual(4, sparkEffect.row)
+        TestRunner.assertEqual(5, sparkEffect.column)
+        TestRunner.assertEqual(6, sparkEffect.gemType)
+    end)
+
+    TestRunner.it("explodes a bomb selected by an activated spark", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[1][1] = cell(7, "color")
+        board[1][2] = cell(6)
+        board[6][6] = cell(6, "explosive")
+
+        -- When
+        local accepted, matches, initialEffects = Board.TrySwap(
+            board,
+            1,
+            1,
+            1,
+            2
+        )
+        local expanded, effects = Board.ExpandSpecialEffects(board, matches)
+
+        -- Then
+        TestRunner.assertTrue(accepted)
+        TestRunner.assertEqual("spark", initialEffects[1].effectType)
+        TestRunner.assertTrue(expanded["5:5"])
+        TestRunner.assertTrue(expanded["7:7"])
+        TestRunner.assertEqual(1, #effects)
+        TestRunner.assertEqual("bomb", effects[1].effectType)
+        TestRunner.assertEqual(6, effects[1].row)
+        TestRunner.assertEqual(6, effects[1].column)
+    end)
+
     TestRunner.it("clears a selected color with a color gem", function()
         -- Given
         local board = {}
@@ -180,18 +259,39 @@ TestRunner.describe("Board.TrySwap color gem", function()
         board[4][5] = cell(2, "explosive")
         board[2][2] = cell(2)
         board[7][7] = cell(2)
+        board[8][1] = cell(3)
+        local function chooseGreen()
+            return 3
+        end
 
         -- When
         local accepted, matches = Board.TrySwap(board, 4, 4, 4, 5)
-        local expanded, effects = Board.ExpandSpecialEffects(board, matches)
+        local expanded, effects = Board.ExpandSpecialEffects(
+            board,
+            matches,
+            chooseGreen
+        )
 
         -- Then
+        local bombEffects = 0
+        local sparkEffect
+        for _, effect in ipairs(effects) do
+            if effect.effectType == "bomb" then
+                bombEffects = bombEffects + 1
+            elseif effect.effectType == "spark" then
+                sparkEffect = effect
+            end
+        end
+
         TestRunner.assertTrue(accepted)
         TestRunner.assertEqual("explosive", board[4][4].special)
         TestRunner.assertEqual("explosive", board[2][2].special)
         TestRunner.assertEqual("explosive", board[7][7].special)
         TestRunner.assertEqual("color", board[4][5].special)
-        TestRunner.assertEqual(3, #effects)
+        TestRunner.assertEqual(3, bombEffects)
+        TestRunner.assertEqual(4, sparkEffect.row)
+        TestRunner.assertEqual(5, sparkEffect.column)
+        TestRunner.assertEqual(3, sparkEffect.gemType)
         TestRunner.assertTrue(expanded["1:1"])
         TestRunner.assertTrue(expanded["8:8"])
     end)

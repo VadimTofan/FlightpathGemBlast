@@ -131,7 +131,11 @@ local function addResolutionSteps(
         end
 
         local bombEffects
-        matches, bombEffects = Board.ExpandSpecialEffects(board, matches)
+        matches, bombEffects = Board.ExpandSpecialEffects(
+            board,
+            matches,
+            random
+        )
         appendBombEffects(effects, bombEffects, effects)
         local clearPositions = copyPositions(matches)
         local cleared = Board.ClearCells(board, matches)
