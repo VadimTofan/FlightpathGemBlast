@@ -4,6 +4,11 @@ local CELL_SIZE = 42
 local BOARD_SIZE = 8
 local BOARD_INSET = 18
 local LEADERBOARD_MAX_ENTRIES = 10
+local LEADERBOARD_WIDTH = 252
+local LEADERBOARD_CONTENT_WIDTH = 224
+local LEADERBOARD_NAME_WIDTH = 90
+local LEADERBOARD_LEVEL_WIDTH = 38
+local LEADERBOARD_SCORE_WIDTH = 64
 local HINT_DELAY = 10
 local HINT_DURATION = 0.4
 local HINT_DISTANCE = 5
@@ -149,8 +154,12 @@ function UI:RefreshLeaderboard()
 
             row.rank:SetText(entry.rank .. ".")
             row.name:SetText(displayName)
-            row.level:SetText("L" .. entry.level)
-            row.score:SetText(entry.score)
+            row.level:SetText("L" .. addon.Leaderboard.FormatNumber(
+                entry.level
+            ))
+            row.score:SetText(addon.Leaderboard.FormatNumber(
+                entry.score
+            ))
             row.rank:SetTextColor(red, green, blue)
             row.name:SetTextColor(red, green, blue)
             row.level:SetTextColor(red, green, blue)
@@ -727,7 +736,7 @@ function UI:CreateLeaderboard(frame)
         frame,
         "BackdropTemplate"
     )
-    leaderboard:SetSize(194, 354)
+    leaderboard:SetSize(LEADERBOARD_WIDTH, 354)
     leaderboard:SetPoint("TOPRIGHT", frame, "TOPLEFT", -6, -52)
     leaderboard:SetFrameLevel(frame:GetFrameLevel() + 10)
     leaderboard:SetBackdrop({
@@ -748,7 +757,7 @@ function UI:CreateLeaderboard(frame)
     self.leaderboardTitle = title
 
     local headingRow = CreateFrame("Frame", nil, leaderboard)
-    headingRow:SetSize(194, 20)
+    headingRow:SetSize(LEADERBOARD_WIDTH, 20)
     headingRow:SetPoint("TOP", 0, -34)
 
     local rankHeading = headingRow:CreateFontString(
@@ -766,7 +775,7 @@ function UI:CreateLeaderboard(frame)
         "OVERLAY",
         "GameFontHighlightSmall"
     )
-    nameHeading:SetSize(66, 20)
+    nameHeading:SetSize(LEADERBOARD_NAME_WIDTH, 20)
     nameHeading:SetPoint("LEFT", rankHeading, "RIGHT", 5, 0)
     nameHeading:SetJustifyH("LEFT")
     nameHeading:SetText("PLAYER")
@@ -776,8 +785,8 @@ function UI:CreateLeaderboard(frame)
         "OVERLAY",
         "GameFontHighlightSmall"
     )
-    levelHeading:SetSize(28, 20)
-    levelHeading:SetPoint("LEFT", nameHeading, "RIGHT", 2, 0)
+    levelHeading:SetSize(LEADERBOARD_LEVEL_WIDTH, 20)
+    levelHeading:SetPoint("LEFT", nameHeading, "RIGHT", 4, 0)
     levelHeading:SetJustifyH("RIGHT")
     levelHeading:SetText("LVL")
 
@@ -786,7 +795,7 @@ function UI:CreateLeaderboard(frame)
         "OVERLAY",
         "GameFontHighlightSmall"
     )
-    scoreHeading:SetSize(45, 20)
+    scoreHeading:SetSize(LEADERBOARD_SCORE_WIDTH, 20)
     scoreHeading:SetPoint("RIGHT", -14, 0)
     scoreHeading:SetJustifyH("RIGHT")
     scoreHeading:SetText("SCORE")
@@ -803,7 +812,7 @@ function UI:CreateLeaderboard(frame)
     self.leaderboardRows = {}
     for index = 1, LEADERBOARD_MAX_ENTRIES do
         local row = CreateFrame("Frame", nil, leaderboard)
-        row:SetSize(166, 22)
+        row:SetSize(LEADERBOARD_CONTENT_WIDTH, 22)
         row:SetPoint("TOPLEFT", 14, -54 - (index - 1) * 24)
 
         row.rank = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -812,17 +821,17 @@ function UI:CreateLeaderboard(frame)
         row.rank:SetJustifyH("RIGHT")
 
         row.name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-        row.name:SetSize(66, 20)
+        row.name:SetSize(LEADERBOARD_NAME_WIDTH, 20)
         row.name:SetPoint("LEFT", row.rank, "RIGHT", 5, 0)
         row.name:SetJustifyH("LEFT")
 
         row.level = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-        row.level:SetSize(28, 20)
-        row.level:SetPoint("LEFT", row.name, "RIGHT", 2, 0)
+        row.level:SetSize(LEADERBOARD_LEVEL_WIDTH, 20)
+        row.level:SetPoint("LEFT", row.name, "RIGHT", 4, 0)
         row.level:SetJustifyH("RIGHT")
 
         row.score = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-        row.score:SetSize(45, 20)
+        row.score:SetSize(LEADERBOARD_SCORE_WIDTH, 20)
         row.score:SetPoint("RIGHT")
         row.score:SetJustifyH("RIGHT")
 
@@ -835,7 +844,7 @@ function UI:CreateLeaderboard(frame)
         leaderboard,
         "UIPanelButtonTemplate"
     )
-    publicButton:SetSize(166, 22)
+    publicButton:SetSize(LEADERBOARD_CONTENT_WIDTH, 22)
     publicButton:SetPoint("BOTTOM", 0, 10)
     publicButton:SetScript("OnClick", function()
         UI:TogglePublicLeaderboard()
@@ -847,7 +856,7 @@ function UI:CreateLeaderboard(frame)
         leaderboard,
         "UIPanelButtonTemplate"
     )
-    partyTab:SetSize(80, 20)
+    partyTab:SetSize(108, 20)
     partyTab:SetPoint("BOTTOMLEFT", 14, 34)
     partyTab:SetText("PARTY")
     partyTab:SetScript("OnClick", function()
@@ -860,7 +869,7 @@ function UI:CreateLeaderboard(frame)
         leaderboard,
         "UIPanelButtonTemplate"
     )
-    publicTab:SetSize(80, 20)
+    publicTab:SetSize(108, 20)
     publicTab:SetPoint("BOTTOMRIGHT", -14, 34)
     publicTab:SetText("PUBLIC")
     publicTab:SetScript("OnClick", function()

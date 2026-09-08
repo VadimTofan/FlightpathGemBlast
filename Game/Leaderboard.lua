@@ -1,6 +1,21 @@
 local Leaderboard = {}
 local _, addon = ...
 
+function Leaderboard.FormatNumber(value)
+    local formatted = tostring(math.max(0, math.floor(tonumber(value) or 0)))
+    local replacements
+
+    repeat
+        formatted, replacements = string.gsub(
+            formatted,
+            "^(%d+)(%d%d%d)",
+            "%1,%2"
+        )
+    until replacements == 0
+
+    return formatted
+end
+
 function Leaderboard.Build(
     localName,
     localScore,

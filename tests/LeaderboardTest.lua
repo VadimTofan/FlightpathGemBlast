@@ -91,3 +91,19 @@ TestRunner.describe("Leaderboard.Build", function()
         TestRunner.assertEqual("You", entries[1].name)
     end)
 end)
+
+TestRunner.describe("Leaderboard.FormatNumber", function()
+    TestRunner.it("groups level and score digits into thousands", function()
+        -- Given
+        local maximumLevel = 9999
+        local maximumScore = 99000000
+
+        -- When
+        local formattedLevel = Leaderboard.FormatNumber(maximumLevel)
+        local formattedScore = Leaderboard.FormatNumber(maximumScore)
+
+        -- Then
+        TestRunner.assertEqual("9,999", formattedLevel)
+        TestRunner.assertEqual("99,000,000", formattedScore)
+    end)
+end)
