@@ -29,6 +29,29 @@ TestRunner.describe("UI menu", function()
         TestRunner.assertTrue(fillsGame)
         TestRunner.assertTrue(blocksBoardInput)
     end)
+
+    TestRunner.it("closes the menu before closing the game", function()
+        -- Given
+        local file = assert(io.open("UI.lua", "r"))
+        local source = file:read("*a")
+        file:close()
+
+        -- When
+        local checksMenuFirst = source:find(
+            "if self.menu:IsShown() then",
+            1,
+            true
+        ) ~= nil
+        local hidesMenuAndReturns = source:find(
+            "self.menu:Hide()\n            return\n        end\n\n        frame:Hide()",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(checksMenuFirst)
+        TestRunner.assertTrue(hidesMenuAndReturns)
+    end)
 end)
 
 TestRunner.describe("UI auto-toggle option", function()

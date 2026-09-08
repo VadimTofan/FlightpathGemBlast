@@ -1061,6 +1061,11 @@ function UI:Create()
     closeButton:SetSize(30, 30)
     closeButton:SetPoint("TOPRIGHT", -5, -5)
     closeButton:SetScript("OnClick", function()
+        if self.menu:IsShown() then
+            self.menu:Hide()
+            return
+        end
+
         frame:Hide()
     end)
 
