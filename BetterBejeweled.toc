@@ -2,7 +2,7 @@
 ## Title: BetterBejeweled
 ## Notes: Play an original fantasy match-three game inside World of Warcraft.
 ## Author: Vadim
-## Version: 0.1.0
+## Version: 0.1.1
 ## X-Curse-Project-ID: 1687358
 ## IconTexture: Interface\AddOns\BetterBejeweled\Media\Gems64\Blue.png
 ## SavedVariables: BetterBejeweledDB
