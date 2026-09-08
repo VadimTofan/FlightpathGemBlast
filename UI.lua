@@ -6,7 +6,7 @@ local BOARD_INSET = 18
 local LEADERBOARD_MAX_ENTRIES = 10
 local HINT_DELAY = 10
 local HINT_DURATION = 0.4
-local HINT_DISTANCE = 3
+local HINT_DISTANCE = 5
 local GEM_TEXTURE_PATH = "Interface\\AddOns\\" .. addonName
     .. "\\Media\\Gems64\\"
 local BOMB_TEXTURE = "Interface\\AddOns\\" .. addonName

@@ -26,17 +26,10 @@ function Hint:Update(elapsed, active, findMove)
     end
 
     if self.move then
-        self.animationElapsed = self.animationElapsed + elapsed
-        local progress = math.min(1, self.animationElapsed / self.duration)
+        self.animationElapsed = (self.animationElapsed + elapsed)
+            % self.duration
+        local progress = self.animationElapsed / self.duration
         local offset = math.sin(progress * math.pi) * self.distance
-
-        if progress >= 1 then
-            local finishedMove = self.move
-            self.move = nil
-            self.animationElapsed = nil
-
-            return finishedMove, 0, true
-        end
 
         return self.move, offset, false
     end

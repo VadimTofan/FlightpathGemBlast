@@ -62,24 +62,31 @@ TestRunner.describe("Hint", function()
         TestRunner.assertEqual(nil, hintedMove)
     end)
 
-    TestRunner.it("returns a small out-and-back bounce", function()
+    TestRunner.it("keeps bouncing until the hint is reset", function()
         -- Given
         local hint = Hint.New(10, 0.4, 3)
+        local findCalls = 0
         local function findMove()
+            findCalls = findCalls + 1
             return move
         end
         hint:Update(10, true, findMove)
 
         -- When
-        local activeMove, middleOffset = hint:Update(0.2, true, findMove)
-        local finishedMove, finalOffset, finished =
+        local firstMove, firstOffset = hint:Update(0.2, true, findMove)
+        local restingMove, restingOffset, finished =
+            hint:Update(0.2, true, findMove)
+        local repeatedMove, repeatedOffset =
             hint:Update(0.2, true, findMove)
 
         -- Then
-        TestRunner.assertEqual(move, activeMove)
-        TestRunner.assertEqual(3, middleOffset)
-        TestRunner.assertEqual(move, finishedMove)
-        TestRunner.assertEqual(0, finalOffset)
-        TestRunner.assertTrue(finished)
+        TestRunner.assertEqual(move, firstMove)
+        TestRunner.assertEqual(3, firstOffset)
+        TestRunner.assertEqual(move, restingMove)
+        TestRunner.assertEqual(0, restingOffset)
+        TestRunner.assertFalse(finished)
+        TestRunner.assertEqual(move, repeatedMove)
+        TestRunner.assertEqual(3, repeatedOffset)
+        TestRunner.assertEqual(1, findCalls)
     end)
 end)

@@ -153,6 +153,11 @@ TestRunner.describe("UI inactivity hint", function()
             1,
             true
         ) ~= nil
+        local usesVisibleDistance = source:find(
+            "local HINT_DISTANCE = 5",
+            1,
+            true
+        ) ~= nil
         local findsMove = source:find(
             "addon.Board.FindValidMove",
             1,
@@ -171,6 +176,7 @@ TestRunner.describe("UI inactivity hint", function()
 
         -- Then
         TestRunner.assertTrue(usesTenSeconds)
+        TestRunner.assertTrue(usesVisibleDistance)
         TestRunner.assertTrue(findsMove)
         TestRunner.assertTrue(updatesHint)
         TestRunner.assertTrue(resetsHint)
