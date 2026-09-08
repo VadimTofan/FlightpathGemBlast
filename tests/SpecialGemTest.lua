@@ -127,7 +127,7 @@ TestRunner.describe("Board.TrySwap color gem", function()
 end)
 
 TestRunner.describe("Board.TrySwap explosive gems", function()
-    TestRunner.it("clears a four by four area around two swapped bombs", function()
+    TestRunner.it("centers a five by five blast on the destination", function()
         -- Given
         local board = {}
         for row = 1, 8 do
@@ -149,16 +149,16 @@ TestRunner.describe("Board.TrySwap explosive gems", function()
         end
 
         TestRunner.assertTrue(accepted)
-        TestRunner.assertEqual(16, clearedCount)
-        TestRunner.assertTrue(blastCells["3:3"])
-        TestRunner.assertTrue(blastCells["6:6"])
-        TestRunner.assertEqual(nil, blastCells["2:3"])
-        TestRunner.assertEqual(nil, blastCells["6:7"])
+        TestRunner.assertEqual(25, clearedCount)
+        TestRunner.assertTrue(blastCells["2:3"])
+        TestRunner.assertTrue(blastCells["6:7"])
+        TestRunner.assertEqual(nil, blastCells["1:3"])
+        TestRunner.assertEqual(nil, blastCells["6:8"])
         TestRunner.assertEqual(2, board[4][4].gemType)
         TestRunner.assertEqual(1, board[4][5].gemType)
     end)
 
-    TestRunner.it("centers a vertical blast around both bombs", function()
+    TestRunner.it("centers a vertical blast on the destination", function()
         -- Given
         local board = {}
         for row = 1, 8 do
@@ -180,8 +180,10 @@ TestRunner.describe("Board.TrySwap explosive gems", function()
         end
 
         TestRunner.assertTrue(accepted)
-        TestRunner.assertEqual(16, clearedCount)
-        TestRunner.assertTrue(blastCells["3:3"])
-        TestRunner.assertTrue(blastCells["6:6"])
+        TestRunner.assertEqual(25, clearedCount)
+        TestRunner.assertTrue(blastCells["3:2"])
+        TestRunner.assertTrue(blastCells["7:6"])
+        TestRunner.assertEqual(nil, blastCells["2:2"])
+        TestRunner.assertEqual(nil, blastCells["7:7"])
     end)
 end)

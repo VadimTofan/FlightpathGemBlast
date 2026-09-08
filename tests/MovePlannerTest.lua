@@ -93,7 +93,7 @@ TestRunner.describe("MovePlanner.Plan", function()
         TestRunner.assertTrue(plan.accepted)
         TestRunner.assertEqual("swap", plan.steps[1].kind)
         TestRunner.assertEqual("clear", plan.steps[2].kind)
-        TestRunner.assertEqual(16, clearedCount)
+        TestRunner.assertEqual(25, clearedCount)
     end)
 
     TestRunner.it("uses the special-preserving reshuffle path", function()

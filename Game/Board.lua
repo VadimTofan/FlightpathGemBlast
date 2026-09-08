@@ -83,29 +83,12 @@ local function swap(board, firstRow, firstColumn, secondRow, secondColumn)
         board[secondRow][secondColumn], board[firstRow][firstColumn]
 end
 
-local function getCombinedBombBlastCells(
-    firstBombRow,
-    firstBombColumn,
-    secondBombRow,
-    secondBombColumn
-)
+local function getCombinedBombBlastCells(centerRow, centerColumn)
     local cells = {}
-    local firstRow = math.max(
-        1,
-        math.min(firstBombRow, secondBombRow) - 1
-    )
-    local lastRow = math.min(
-        BOARD_SIZE,
-        math.min(firstBombRow, secondBombRow) + 2
-    )
-    local firstColumn = math.max(
-        1,
-        math.min(firstBombColumn, secondBombColumn) - 1
-    )
-    local lastColumn = math.min(
-        BOARD_SIZE,
-        math.min(firstBombColumn, secondBombColumn) + 2
-    )
+    local firstRow = math.max(1, centerRow - 2)
+    local lastRow = math.min(BOARD_SIZE, centerRow + 2)
+    local firstColumn = math.max(1, centerColumn - 2)
+    local lastColumn = math.min(BOARD_SIZE, centerColumn + 2)
 
     for row = firstRow, lastRow do
         for column = firstColumn, lastColumn do
@@ -137,12 +120,7 @@ function Board.TrySwap(board, firstRow, firstColumn, secondRow, secondColumn)
     if firstIsExplosive and secondIsExplosive then
         swap(board, firstRow, firstColumn, secondRow, secondColumn)
 
-        return true, getCombinedBombBlastCells(
-            firstRow,
-            firstColumn,
-            secondRow,
-            secondColumn
-        )
+        return true, getCombinedBombBlastCells(secondRow, secondColumn)
     end
 
     if firstIsColor or secondIsColor then
