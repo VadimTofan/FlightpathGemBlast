@@ -502,10 +502,6 @@ function UI:FinishAnimationPlan(plan)
         )
     end
 
-    if plan.accepted and addon.BroadcastScore then
-        addon.BroadcastScore()
-    end
-
     if addon.controller.soundEnabled then
         local sound = not plan.accepted
             and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF

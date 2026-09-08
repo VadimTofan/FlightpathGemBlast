@@ -1,7 +1,7 @@
 local addonName, addon = ...
 
 local events = CreateFrame("Frame")
-local PUBLIC_SYNC_INTERVAL = 30
+local SCORE_SYNC_INTERVAL = 30
 
 local function getPlayerName()
     local name, realm = UnitFullName("player")
@@ -265,8 +265,12 @@ local function initialize()
         end
     end)
 
-    C_Timer.NewTicker(PUBLIC_SYNC_INTERVAL, function()
-        if addon.publicLeaderboard.state == "CONNECTED" then
+    C_Timer.NewTicker(SCORE_SYNC_INTERVAL, function()
+        local hasGroupChannel = addon.communication:GetGroupChannel() ~= nil
+        local hasPublicChannel =
+            addon.publicLeaderboard.state == "CONNECTED"
+
+        if hasGroupChannel or hasPublicChannel then
             broadcastScore()
         end
     end)

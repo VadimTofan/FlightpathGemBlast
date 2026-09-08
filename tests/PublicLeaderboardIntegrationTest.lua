@@ -140,4 +140,48 @@ TestRunner.describe("Public leaderboard integration", function()
         TestRunner.assertTrue(recordsPublic)
         TestRunner.assertTrue(forwardsOriginal)
     end)
+
+    TestRunner.it("broadcasts gameplay scores every thirty seconds", function()
+        -- Given
+        local coreFile = assert(io.open("Core.lua", "r"))
+        local coreSource = coreFile:read("*a")
+        coreFile:close()
+
+        local uiFile = assert(io.open("UI.lua", "r"))
+        local uiSource = uiFile:read("*a")
+        uiFile:close()
+
+        -- When
+        local usesThirtySecondInterval = coreSource:find(
+            "local SCORE_SYNC_INTERVAL = 30",
+            1,
+            true
+        ) ~= nil
+        local schedulesScoreSync = coreSource:find(
+            "C_Timer.NewTicker(SCORE_SYNC_INTERVAL",
+            1,
+            true
+        ) ~= nil
+        local finishStart = assert(uiSource:find(
+            "function UI:FinishAnimationPlan",
+            1,
+            true
+        ))
+        local finishEnd = assert(uiSource:find(
+            "function UI:SelectCell",
+            finishStart,
+            true
+        ))
+        local finishSource = uiSource:sub(finishStart, finishEnd - 1)
+        local broadcastsAfterEveryMove = finishSource:find(
+            "BroadcastScore",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(usesThirtySecondInterval)
+        TestRunner.assertTrue(schedulesScoreSync)
+        TestRunner.assertFalse(broadcastsAfterEveryMove)
+    end)
 end)
