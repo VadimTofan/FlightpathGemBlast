@@ -75,7 +75,7 @@ TestRunner.describe("UI menu", function()
             true
         ) ~= nil
         local hasNewGamePopup = uiSource:find(
-            "BETTERBEJEWELED_NEW_GAME",
+            "FLIGHTPATHGEMBLAST_NEW_GAME",
             1,
             true
         ) ~= nil
@@ -85,7 +85,7 @@ TestRunner.describe("UI menu", function()
             true
         ) ~= nil
         local keepsMainCloseButton = uiSource:find(
-            '"BetterBejeweledCloseButton"',
+            '"FlightpathGemBlastCloseButton"',
             1,
             true
         ) ~= nil

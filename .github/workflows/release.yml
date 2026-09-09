@@ -31,7 +31,7 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
 
-          archives=(.release/BetterBejeweled-*.zip)
+          archives=(.release/FlightpathGemBlast-*.zip)
           if (( ${#archives[@]} != 1 )); then
             echo "Expected one release archive, found ${#archives[@]}."
             exit 1
@@ -41,7 +41,7 @@ jobs:
           unzip -t "$archive"
           archive_entries="$(unzip -Z1 "$archive")"
 
-          if grep -Ev '^BetterBejeweled/' <<< "$archive_entries" \
+          if grep -Ev '^FlightpathGemBlast/' <<< "$archive_entries" \
               | grep -q .; then
             echo "Release archive contains an unexpected root path."
             exit 1
@@ -58,15 +58,15 @@ jobs:
               continue
             fi
 
-            packaged_entry="BetterBejeweled/${entry//\\//}"
+            packaged_entry="FlightpathGemBlast/${entry//\\//}"
             if ! grep -Fxq "$packaged_entry" <<< "$archive_entries"; then
               echo "Missing TOC file: $packaged_entry"
               exit 1
             fi
-          done < BetterBejeweled.toc
+          done < FlightpathGemBlast.toc
 
           while IFS= read -r asset; do
-            packaged_asset="BetterBejeweled/$asset"
+            packaged_asset="FlightpathGemBlast/$asset"
             if ! grep -Fxq "$packaged_asset" <<< "$archive_entries"; then
               echo "Missing runtime asset: $packaged_asset"
               exit 1
@@ -74,7 +74,7 @@ jobs:
           done < <(git ls-files 'Media/*')
 
           if grep -Eq \
-              '^BetterBejeweled/(tests/|\.github/|README\.md$|\.pkgmeta$|\.gitignore$)' \
+              '^FlightpathGemBlast/(tests/|\.github/|README\.md$|\.pkgmeta$|\.gitignore$)' \
               <<< "$archive_entries"; then
             echo "Release archive contains development files."
             exit 1

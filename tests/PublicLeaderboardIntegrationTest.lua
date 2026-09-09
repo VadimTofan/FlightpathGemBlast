@@ -60,7 +60,7 @@ TestRunner.describe("Public leaderboard integration", function()
             true
         ) ~= nil
         local limitsFilter = source:find(
-            'channelBaseName == "BetterBejeweled"',
+            'channelBaseName == "Flightpath Gem Blast"',
             1,
             true
         ) ~= nil

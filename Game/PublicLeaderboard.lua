@@ -3,7 +3,7 @@ PublicLeaderboard.__index = PublicLeaderboard
 
 local _, addon = ...
 
-local CHANNEL_NAME = "BetterBejeweled"
+local CHANNEL_NAME = "Flightpath Gem Blast"
 
 function PublicLeaderboard.New(api)
     return setmetatable({

@@ -16,7 +16,7 @@ TestRunner.describe("CurseForge release workflow", function()
     TestRunner.it("publishes version tags with the configured project", function()
         -- Given
         local workflow = readFile(".github/workflows/release.yml")
-        local toc = readFile("BetterBejeweled.toc")
+        local toc = readFile("FlightpathGemBlast.toc")
 
         -- When
         local usesVersionTags = workflow:find(
@@ -30,7 +30,7 @@ TestRunner.describe("CurseForge release workflow", function()
             true
         ) ~= nil
         local hasProjectId = toc:find(
-            "## X-Curse-Project-ID: 1687358",
+            "## X-Curse-Project-ID: 1688263",
             1,
             true
         ) ~= nil

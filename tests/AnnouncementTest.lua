@@ -11,7 +11,7 @@ TestRunner.describe("Announcement.LevelMessage", function()
 
         -- Then
         TestRunner.assertEqual(
-            "I just reached level 7 in BetterBejeweled!",
+            "I just reached level 7 in Flightpath Gem Blast!",
             message
         )
     end)
@@ -34,12 +34,12 @@ TestRunner.describe("Announcement.SendReachedLevels", function()
         -- Then
         TestRunner.assertEqual(2, #sent)
         TestRunner.assertEqual(
-            "I just reached level 4 in BetterBejeweled!",
+            "I just reached level 4 in Flightpath Gem Blast!",
             sent[1].message
         )
         TestRunner.assertEqual("EMOTE", sent[1].chatType)
         TestRunner.assertEqual(
-            "I just reached level 5 in BetterBejeweled!",
+            "I just reached level 5 in Flightpath Gem Blast!",
             sent[2].message
         )
         TestRunner.assertEqual("EMOTE", sent[2].chatType)
@@ -68,7 +68,7 @@ TestRunner.describe("Announcement.NotifyNoMoves", function()
             shownMessage
         )
         TestRunner.assertEqual(
-            "BetterBejeweled: No moves left. Reshuffling the board...",
+            "Flightpath Gem Blast: No moves left. Reshuffling the board...",
             loggedMessage
         )
     end)

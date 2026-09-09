@@ -18,14 +18,14 @@ local function positionButton(button, angle)
 end
 
 function Launcher:Create()
-    SLASH_BETTERBEJEWELED1 = "/bb"
-    SlashCmdList.BETTERBEJEWELED = function()
+    SLASH_FLIGHTPATHGEMBLAST1 = "/fgb"
+    SlashCmdList.FLIGHTPATHGEMBLAST = function()
         addon.UI:Toggle()
     end
 
     local button = CreateFrame(
         "Button",
-        "BetterBejeweledMinimapButton",
+        "FlightpathGemBlastMinimapButton",
         Minimap
     )
     button:SetSize(31, 31)
@@ -49,7 +49,7 @@ function Launcher:Create()
     icon:SetSize(18, 18)
     icon:SetPoint("CENTER")
     icon:SetTexture(
-        "Interface\\AddOns\\BetterBejeweled\\Media\\Gems64\\Blue.png"
+        "Interface\\AddOns\\FlightpathGemBlast\\Media\\Gems64\\Blue.png"
     )
     icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 
@@ -68,7 +68,7 @@ function Launcher:Create()
             local angle = math.deg(math.atan2(y / scale - centerY,
                 x / scale - centerX))
 
-            BetterBejeweledDB.minimapAngle = angle
+            FlightpathGemBlastDB.minimapAngle = angle
             positionButton(button, angle)
         end)
     end)
@@ -77,17 +77,17 @@ function Launcher:Create()
     end)
     button:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:SetText("BetterBejeweled")
+        GameTooltip:SetText("Flightpath Gem Blast")
         GameTooltip:AddLine("Click to play. Drag to move.", 1, 1, 1)
         GameTooltip:Show()
     end)
     button:SetScript("OnLeave", GameTooltip_Hide)
     button:RegisterEvent("PLAYER_ENTERING_WORLD")
     button:SetScript("OnEvent", function()
-        positionButton(button, BetterBejeweledDB.minimapAngle)
+        positionButton(button, FlightpathGemBlastDB.minimapAngle)
     end)
 
-    positionButton(button, BetterBejeweledDB.minimapAngle)
+    positionButton(button, FlightpathGemBlastDB.minimapAngle)
     self.button = button
 end
 

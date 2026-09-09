@@ -39,7 +39,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
         publicLeaderboard:Join()
 
         -- Then
-        TestRunner.assertEqual("BetterBejeweled", joinedChannel)
+        TestRunner.assertEqual("Flightpath Gem Blast", joinedChannel)
         TestRunner.assertTrue(publicLeaderboard.enabled)
         TestRunner.assertEqual("JOINING", publicLeaderboard.state)
         TestRunner.assertEqual("Joining...", publicLeaderboard:GetButtonLabel())
@@ -66,7 +66,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
         TestRunner.assertTrue(newlyConnected)
         TestRunner.assertEqual("CONNECTED", publicLeaderboard.state)
         TestRunner.assertEqual(7, publicLeaderboard.channelId)
-        TestRunner.assertEqual("BetterBejeweled", hiddenChannel)
+        TestRunner.assertEqual("Flightpath Gem Blast", hiddenChannel)
         TestRunner.assertEqual(
             "Leave Public Leaderboard",
             publicLeaderboard:GetButtonLabel()
@@ -92,7 +92,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
         publicLeaderboard:Leave()
 
         -- Then
-        TestRunner.assertEqual("BetterBejeweled", leftChannel)
+        TestRunner.assertEqual("Flightpath Gem Blast", leftChannel)
         TestRunner.assertFalse(publicLeaderboard.enabled)
         TestRunner.assertEqual("DISCONNECTED", publicLeaderboard.state)
         TestRunner.assertEqual(nil, publicLeaderboard.channelId)
@@ -140,7 +140,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
 
         -- When
         local isPublic = publicLeaderboard:IsChannelTarget(
-            "7. BetterBejeweled"
+            "7. Flightpath Gem Blast"
         )
 
         -- Then
@@ -149,7 +149,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
             publicLeaderboard:IsChannelTarget("6. AnotherChannel")
         )
         TestRunner.assertFalse(
-            publicLeaderboard:IsChannelTarget("8. NotBetterBejeweled")
+            publicLeaderboard:IsChannelTarget("8. AnotherChannel")
         )
     end)
 

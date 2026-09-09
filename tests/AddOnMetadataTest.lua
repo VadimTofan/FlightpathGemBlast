@@ -1,9 +1,32 @@
 local TestRunner = require("tests.TestRunner")
 
 TestRunner.describe("AddOn metadata", function()
+    TestRunner.it("uses the Flightpath Gem Blast identity", function()
+        -- Given
+        local tocFile = assert(io.open("FlightpathGemBlast.toc", "r"))
+        local toc = tocFile:read("*a")
+        tocFile:close()
+
+        -- When
+        local hasTitle = toc:find(
+            "## Title: Flightpath Gem Blast",
+            1,
+            true
+        ) ~= nil
+        local hasSavedVariables = toc:find(
+            "## SavedVariables: FlightpathGemBlastDB",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(hasTitle)
+        TestRunner.assertTrue(hasSavedVariables)
+    end)
+
     TestRunner.it("uses the blue gem in the AddOns list", function()
         -- Given
-        local tocFile = assert(io.open("BetterBejeweled.toc", "r"))
+        local tocFile = assert(io.open("FlightpathGemBlast.toc", "r"))
         local toc = tocFile:read("*a")
         tocFile:close()
 
@@ -12,7 +35,7 @@ TestRunner.describe("AddOn metadata", function()
 
         -- When
         local hasBlueGemIcon = toc:find(
-            "## IconTexture: Interface\\AddOns\\BetterBejeweled"
+            "## IconTexture: Interface\\AddOns\\FlightpathGemBlast"
                 .. "\\Media\\Gems64\\Blue.png",
             1,
             true
@@ -30,7 +53,7 @@ TestRunner.describe("AddOn metadata", function()
 
     TestRunner.it("loads special effects before the animation director", function()
         -- Given
-        local tocFile = assert(io.open("BetterBejeweled.toc", "r"))
+        local tocFile = assert(io.open("FlightpathGemBlast.toc", "r"))
         local toc = tocFile:read("*a")
         tocFile:close()
 

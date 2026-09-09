@@ -3,7 +3,7 @@ local _, addon = ...
 local Communication = {}
 Communication.__index = Communication
 
-local PREFIX = "BetterBejeweled"
+local PREFIX = "FPGB"
 local PUBLIC_BROADCAST_INTERVAL = 5
 local PUBLIC_QUEUE_INTERVAL = 1
 local MAX_PUBLIC_QUEUE = 50

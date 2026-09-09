@@ -44,7 +44,7 @@ local function createApi(overrides)
             return 100
         end,
         isPublicChannel = function(target)
-            return target == "7. BetterBejeweled"
+            return target == "7. Flightpath Gem Blast"
         end,
         decodeScore = ScorePacket.Decode,
         accountId = "local00000000001",
@@ -82,7 +82,7 @@ TestRunner.describe("Communication", function()
 
         -- Then
         TestRunner.assertTrue(succeeded)
-        TestRunner.assertEqual("BetterBejeweled", sent.prefix)
+        TestRunner.assertEqual("FPGB", sent.prefix)
         TestRunner.assertEqual("S:1:1250:4", sent.message)
         TestRunner.assertEqual("PARTY", sent.channel)
     end)
@@ -164,7 +164,7 @@ TestRunner.describe("Communication", function()
 
         -- When
         local accepted = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             "S:1:725:3",
             "RAID",
             "Jaina-Proudmoore"
@@ -188,7 +188,7 @@ TestRunner.describe("Communication", function()
 
         -- When
         local accepted = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             "S:1:not-a-score:3",
             "PARTY",
             "Thrall-Draenor"
@@ -205,7 +205,7 @@ TestRunner.describe("Communication", function()
 
         -- When
         local accepted = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             "S:1:725:3",
             "PARTY",
             "Vadim-Silvermoon"
@@ -222,7 +222,7 @@ TestRunner.describe("Communication", function()
 
         -- When
         local accepted = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             "S:1:725:3",
             "PARTY",
             "Vadim-Draenor"
@@ -288,7 +288,7 @@ TestRunner.describe("Communication encoded scores", function()
         -- When
         local accepted, messageType, scoreData, source =
             communication:HandleMessage(
-                "BetterBejeweled",
+                "FPGB",
                 encoded,
                 "PARTY",
                 "Jaina-Proudmoore"
@@ -309,7 +309,7 @@ TestRunner.describe("Communication encoded scores", function()
 
         -- When
         local accepted = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             encoded,
             "PARTY",
             "Jaina-Proudmoore"
@@ -324,7 +324,7 @@ TestRunner.describe("Communication encoded scores", function()
         local encoded = encodedScore()
         local communication = Communication.New(createApi())
         communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             encoded,
             "PARTY",
             "Jaina-Proudmoore"
@@ -332,11 +332,11 @@ TestRunner.describe("Communication encoded scores", function()
 
         -- When
         local accepted = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             encoded,
             "CHANNEL",
             "Jaina-Proudmoore",
-            "7. BetterBejeweled"
+            "7. Flightpath Gem Blast"
         )
 
         -- Then
@@ -352,11 +352,11 @@ TestRunner.describe("Communication encoded scores", function()
 
         -- When
         local accepted, _, scoreData, source = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             encoded,
             "CHANNEL",
             "Jaina-Proudmoore",
-            "7. BetterBejeweled"
+            "7. Flightpath Gem Blast"
         )
 
         -- Then
@@ -475,11 +475,11 @@ TestRunner.describe("Communication public leaderboard", function()
 
         -- When
         local accepted, messageType = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             "P:1:S:725:3",
             "CHANNEL",
             "Jaina-Proudmoore",
-            "7. BetterBejeweled"
+            "7. Flightpath Gem Blast"
         )
 
         -- Then
@@ -502,11 +502,11 @@ TestRunner.describe("Communication public leaderboard", function()
         -- When
         for index = 1, 120 do
             communication:HandleMessage(
-                "BetterBejeweled",
+                "FPGB",
                 "P:1:S:1250:4",
                 "CHANNEL",
                 "Player" .. index,
-                "7. BetterBejeweled"
+                "7. Flightpath Gem Blast"
             )
         end
 
@@ -524,11 +524,11 @@ TestRunner.describe("Communication public leaderboard", function()
 
         -- When
         local accepted, messageType = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             "P:1:Q",
             "CHANNEL",
             "Thrall-Draenor",
-            "7. BetterBejeweled"
+            "7. Flightpath Gem Blast"
         )
 
         -- Then
@@ -542,7 +542,7 @@ TestRunner.describe("Communication public leaderboard", function()
 
         -- When
         local accepted = communication:HandleMessage(
-            "BetterBejeweled",
+            "FPGB",
             "P:1:S:725:3",
             "CHANNEL",
             "Jaina-Proudmoore",

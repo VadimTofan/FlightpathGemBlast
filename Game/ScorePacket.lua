@@ -2,7 +2,7 @@ local ScorePacket = {}
 local _, addon = ...
 
 local ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local CHECKSUM_SALT = "BetterBejeweled:score:v1"
+local CHECKSUM_SALT = "FlightpathGemBlast:score:v1"
 local MAX_SCORE = 999999999
 local MAX_LEVEL = 99999
 

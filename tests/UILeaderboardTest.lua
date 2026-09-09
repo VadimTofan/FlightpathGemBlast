@@ -9,7 +9,7 @@ TestRunner.describe("UI leaderboard", function()
 
         -- When
         local hasPanel = source:find(
-            '"BetterBejeweledLeaderboard"',
+            '"FlightpathGemBlastLeaderboard"',
             1,
             true
         ) ~= nil
@@ -19,7 +19,7 @@ TestRunner.describe("UI leaderboard", function()
             true
         ) ~= nil
         local hasToggle = source:find(
-            '"BetterBejeweledLeaderboardToggle"',
+            '"FlightpathGemBlastLeaderboardToggle"',
             1,
             true
         ) ~= nil
@@ -160,7 +160,7 @@ TestRunner.describe("UI public leaderboard", function()
 
         -- When
         local hasButton = source:find(
-            '"BetterBejeweledPublicLeaderboardButton"',
+            '"FlightpathGemBlastPublicLeaderboardButton"',
             1,
             true
         ) ~= nil
@@ -194,7 +194,7 @@ TestRunner.describe("UI public leaderboard", function()
             true
         ) ~= nil
         local persistsChoice = source:find(
-            "BetterBejeweledDB.publicLeaderboardEnabled",
+            "FlightpathGemBlastDB.publicLeaderboardEnabled",
             1,
             true
         ) ~= nil
@@ -212,12 +212,12 @@ TestRunner.describe("UI public leaderboard", function()
 
         -- When
         local hasPartyTab = source:find(
-            '"BetterBejeweledPartyLeaderboardTab"',
+            '"FlightpathGemBlastPartyLeaderboardTab"',
             1,
             true
         ) ~= nil
         local hasPublicTab = source:find(
-            '"BetterBejeweledPublicLeaderboardTab"',
+            '"FlightpathGemBlastPublicLeaderboardTab"',
             1,
             true
         ) ~= nil

@@ -1,11 +1,11 @@
 ## Interface: 120100
-## Title: BetterBejeweled
+## Title: Flightpath Gem Blast
 ## Notes: Play an original fantasy match-three game inside World of Warcraft.
 ## Author: Vadim
 ## Version: 0.1.3
-## X-Curse-Project-ID: 1687358
-## IconTexture: Interface\AddOns\BetterBejeweled\Media\Gems64\Blue.png
-## SavedVariables: BetterBejeweledDB
+## X-Curse-Project-ID: 1688263
+## IconTexture: Interface\AddOns\FlightpathGemBlast\Media\Gems64\Blue.png
+## SavedVariables: FlightpathGemBlastDB
 
 Game\Board.lua
 Game\Scoring.lua

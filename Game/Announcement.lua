@@ -2,7 +2,7 @@ local Announcement = {}
 local _, addon = ...
 
 function Announcement.LevelMessage(level)
-    return "I just reached level " .. level .. " in BetterBejeweled!"
+    return "I just reached level " .. level .. " in Flightpath Gem Blast!"
 end
 
 function Announcement.SendReachedLevels(previousLevel, currentLevel, send)
@@ -15,7 +15,7 @@ function Announcement.NotifyNoMoves(show, log)
     local message = "No moves left. Reshuffling the board..."
 
     show(message)
-    log("BetterBejeweled: " .. message)
+    log("Flightpath Gem Blast: " .. message)
 end
 
 if type(addon) == "table" then
