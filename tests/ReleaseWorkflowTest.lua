@@ -34,11 +34,17 @@ TestRunner.describe("CurseForge release workflow", function()
             1,
             true
         ) ~= nil
+        local hasReleaseVersion = toc:find(
+            "## Version: 0.1.4",
+            1,
+            true
+        ) ~= nil
 
         -- Then
         TestRunner.assertTrue(usesVersionTags)
         TestRunner.assertTrue(mapsTokenSecret)
         TestRunner.assertTrue(hasProjectId)
+        TestRunner.assertTrue(hasReleaseVersion)
     end)
 
     TestRunner.it("validates the package before uploading it", function()
