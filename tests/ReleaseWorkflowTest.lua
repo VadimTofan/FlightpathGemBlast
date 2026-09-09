@@ -101,7 +101,7 @@ TestRunner.describe("CurseForge release workflow", function()
             1,
             true
         )
-        local uploadPosition = workflow:find("args: -c", 1, true)
+        local uploadPosition = workflow:find("args: -c -o", 1, true)
 
         -- Then
         TestRunner.assertTrue(restorePosition ~= nil)

@@ -87,4 +87,4 @@ jobs:
       - name: Upload to CurseForge
         uses: BigWigsMods/packager@v2
         with:
-          args: -c
+          args: -c -o
