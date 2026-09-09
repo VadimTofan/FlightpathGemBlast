@@ -81,6 +81,9 @@ jobs:
             exit 1
           fi
 
+          rm -rf .release/GemBlast
+          unzip -q "$archive" -d .release
+
       - name: Upload to CurseForge
         uses: BigWigsMods/packager@v2
         with:

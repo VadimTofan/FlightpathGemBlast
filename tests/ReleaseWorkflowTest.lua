@@ -91,6 +91,24 @@ TestRunner.describe("CurseForge release workflow", function()
         TestRunner.assertTrue(checksZipIntegrity)
     end)
 
+    TestRunner.it("restores the validated package before uploading it", function()
+        -- Given
+        local workflow = readFile(".github/workflows/release.yml")
+
+        -- When
+        local restorePosition = workflow:find(
+            'unzip -q "$archive" -d .release',
+            1,
+            true
+        )
+        local uploadPosition = workflow:find("args: -c", 1, true)
+
+        -- Then
+        TestRunner.assertTrue(restorePosition ~= nil)
+        TestRunner.assertTrue(uploadPosition ~= nil)
+        TestRunner.assertTrue(restorePosition < uploadPosition)
+    end)
+
     TestRunner.it("excludes development files from release archives", function()
         -- Given
         local pkgmeta = readFile(".pkgmeta")
