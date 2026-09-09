@@ -5,9 +5,10 @@ local _, addon = ...
 
 local CHANNEL_NAME = "GemBlast"
 
-function PublicLeaderboard.New(api)
+function PublicLeaderboard.New(api, available)
     return setmetatable({
         api = api,
+        available = available ~= false,
         enabled = false,
         state = "DISCONNECTED",
         channelId = nil,
@@ -15,6 +16,10 @@ function PublicLeaderboard.New(api)
 end
 
 function PublicLeaderboard:Join()
+    if not self.available then
+        return false
+    end
+
     self.enabled = true
     self.state = "JOINING"
     local succeeded = pcall(self.api.joinChannel, CHANNEL_NAME)
@@ -28,7 +33,7 @@ function PublicLeaderboard:Join()
 end
 
 function PublicLeaderboard:RefreshConnection(finalCheck)
-    if not self.enabled then
+    if not self.available or not self.enabled then
         return false
     end
 
@@ -56,6 +61,10 @@ function PublicLeaderboard:Leave()
 end
 
 function PublicLeaderboard:GetButtonLabel()
+    if not self.available then
+        return "Unavailable on Classic"
+    end
+
     if self.state == "CONNECTED" then
         return "Leave Public Leaderboard"
     end

@@ -1,8 +1,8 @@
-## Interface: 120100
+## Interface: 11509, 20506, 38002, 50504, 120100
 ## Title: Gem Blast
 ## Notes: Play an original fantasy match-three game inside World of Warcraft.
 ## Author: Vadim
-## Version: 0.1.6
+## Version: 0.1.7
 ## X-Curse-Project-ID: 1688263
 ## IconTexture: Interface\AddOns\GemBlast\Media\Gems64\Blue.png
 ## SavedVariables: GemBlastDB, BetterBejeweledDB

@@ -172,7 +172,8 @@ function UI:RefreshLeaderboard()
             publicLeaderboard:GetButtonLabel()
         )
 
-        if publicLeaderboard.state == "JOINING" then
+        if not publicLeaderboard.available
+            or publicLeaderboard.state == "JOINING" then
             self.publicLeaderboardButton:Disable()
         else
             self.publicLeaderboardButton:Enable()
@@ -183,7 +184,8 @@ function UI:RefreshLeaderboard()
     if self.partyLeaderboardTab and self.publicLeaderboardTab then
         self.partyLeaderboardTab:SetEnabled(mode ~= "party")
         self.publicLeaderboardTab:SetEnabled(
-            publicLeaderboard.enabled and mode ~= "public"
+            publicLeaderboard.available
+                and publicLeaderboard.enabled and mode ~= "public"
         )
     end
 
@@ -204,6 +206,10 @@ function UI:SetLeaderboardMode(mode)
         return
     end
 
+    if mode == "public" and not publicLeaderboard.available then
+        return
+    end
+
     if mode == "public" and not publicLeaderboard.enabled then
         return
     end
@@ -215,7 +221,7 @@ end
 
 function UI:TogglePublicLeaderboard()
     local publicLeaderboard = addon.publicLeaderboard
-    if not publicLeaderboard then
+    if not publicLeaderboard or not publicLeaderboard.available then
         return
     end
 

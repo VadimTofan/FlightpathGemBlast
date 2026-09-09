@@ -66,6 +66,17 @@ jobs:
             fi
           done < GemBlast.toc
 
+          packaged_interfaces="$(
+            unzip -p "$archive" GemBlast/GemBlast.toc \
+              | tr -d '\r' \
+              | sed -n 's/^## Interface:[[:space:]]*//p'
+          )"
+          if [[ "$packaged_interfaces" \
+              != "11509, 20506, 38002, 50504, 120100" ]]; then
+            echo "Release archive has incorrect client interfaces."
+            exit 1
+          fi
+
           while IFS= read -r asset; do
             packaged_asset="GemBlast/$asset"
             if ! grep -Fxq "$packaged_asset" <<< "$archive_entries"; then

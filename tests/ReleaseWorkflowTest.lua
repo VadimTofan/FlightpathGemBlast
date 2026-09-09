@@ -56,7 +56,7 @@ TestRunner.describe("CurseForge release workflow", function()
             true
         ) ~= nil
         local hasReleaseVersion = toc:find(
-            "## Version: 0.1.6",
+            "## Version: 0.1.7",
             1,
             true
         ) ~= nil
@@ -66,6 +66,43 @@ TestRunner.describe("CurseForge release workflow", function()
         TestRunner.assertTrue(mapsTokenSecret)
         TestRunner.assertTrue(hasProjectId)
         TestRunner.assertTrue(hasReleaseVersion)
+    end)
+
+    TestRunner.it("packages every live World of Warcraft client", function()
+        -- Given
+        local toc = readFile("GemBlast.toc")
+        local pkgmeta = readFile(".pkgmeta")
+
+        -- When
+        local hasAllInterfaces = toc:find(
+            "## Interface: 11509, 20506, 38002, 50504, 120100",
+            1,
+            true
+        ) ~= nil
+        local createsFlavorTocs = pkgmeta:find(
+            "enable-toc-creation: yes",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(hasAllInterfaces)
+        TestRunner.assertFalse(createsFlavorTocs)
+    end)
+
+    TestRunner.it("validates the packaged multi-client interface list", function()
+        -- Given
+        local workflow = readFile(".github/workflows/release.yml")
+
+        -- When
+        local validatesInterfaces = workflow:find(
+            "11509, 20506, 38002, 50504, 120100",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(validatesInterfaces)
     end)
 
     TestRunner.it("validates the package before uploading it", function()

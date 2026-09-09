@@ -25,6 +25,30 @@ local function createApi(overrides)
 end
 
 TestRunner.describe("PublicLeaderboard channel lifecycle", function()
+    TestRunner.it("does not join when public channels are unavailable", function()
+        -- Given
+        local joinAttempts = 0
+        local PublicLeaderboard = loadPublicLeaderboard()
+        local publicLeaderboard = PublicLeaderboard.New(createApi({
+            joinChannel = function()
+                joinAttempts = joinAttempts + 1
+            end,
+        }), false)
+
+        -- When
+        local started = publicLeaderboard:Join()
+
+        -- Then
+        TestRunner.assertFalse(started)
+        TestRunner.assertEqual(0, joinAttempts)
+        TestRunner.assertFalse(publicLeaderboard.enabled)
+        TestRunner.assertEqual("DISCONNECTED", publicLeaderboard.state)
+        TestRunner.assertEqual(
+            "Unavailable on Classic",
+            publicLeaderboard:GetButtonLabel()
+        )
+    end)
+
     TestRunner.it("joins the temporary public channel", function()
         -- Given
         local joinedChannel

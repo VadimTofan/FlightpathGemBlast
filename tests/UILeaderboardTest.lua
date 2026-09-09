@@ -152,6 +152,29 @@ TestRunner.describe("UI leaderboard local player", function()
 end)
 
 TestRunner.describe("UI public leaderboard", function()
+    TestRunner.it("disables public controls when channels are unavailable", function()
+        -- Given
+        local file = assert(io.open("UI.lua", "r"))
+        local source = file:read("*a")
+        file:close()
+
+        -- When
+        local disablesJoinButton = source:find(
+            "not publicLeaderboard.available",
+            1,
+            true
+        ) ~= nil
+        local gatesPublicTab = source:find(
+            "publicLeaderboard.available",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(disablesJoinButton)
+        TestRunner.assertTrue(gatesPublicTab)
+    end)
+
     TestRunner.it("places a join button below the leaderboard rows", function()
         -- Given
         local file = assert(io.open("UI.lua", "r"))

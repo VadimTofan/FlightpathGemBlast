@@ -1,6 +1,29 @@
 local TestRunner = require("tests.TestRunner")
 
 TestRunner.describe("Public leaderboard integration", function()
+    TestRunner.it("enables public channels only on the mainline client", function()
+        -- Given
+        local file = assert(io.open("Core.lua", "r"))
+        local source = file:read("*a")
+        file:close()
+
+        -- When
+        local detectsMainline = source:find(
+            "WOW_PROJECT_ID == WOW_PROJECT_MAINLINE",
+            1,
+            true
+        ) ~= nil
+        local passesAvailability = source:find(
+            "publicLeaderboardAvailable",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(detectsMainline)
+        TestRunner.assertTrue(passesAvailability)
+    end)
+
     TestRunner.it("uses a temporary channel without assigning a chat frame", function()
         -- Given
         local file = assert(io.open("Core.lua", "r"))

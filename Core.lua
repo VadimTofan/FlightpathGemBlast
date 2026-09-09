@@ -2,6 +2,8 @@ local addonName, addon = ...
 
 local events = CreateFrame("Frame")
 local SCORE_SYNC_INTERVAL = 30
+local publicLeaderboardAvailable =
+    WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 
 local function getPlayerName()
     local name, realm = UnitFullName("player")
@@ -216,7 +218,12 @@ local function initialize()
                 end
             end
         end,
-    })
+    }, publicLeaderboardAvailable)
+    if not publicLeaderboardAvailable then
+        GemBlastDB.publicLeaderboardEnabled = false
+        GemBlastDB.leaderboardMode = "party"
+    end
+
     addon.communication = addon.Communication.New({
         registerPrefix = C_ChatInfo.RegisterAddonMessagePrefix,
         send = C_ChatInfo.SendAddonMessage,
