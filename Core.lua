@@ -82,7 +82,7 @@ addon.BroadcastScore = broadcastScore
 local function hidePublicChannelMessage(_, _, ...)
     local channelBaseName = select(9, ...)
 
-    return channelBaseName == "Flightpath Gem Blast"
+    return channelBaseName == "GemBlast"
 end
 
 local function registerPublicChannelFilters()
@@ -138,13 +138,13 @@ local function handleAutoToggle(event)
     local action
     if event == "PLAYER_REGEN_DISABLED" then
         action = addon.autoToggle:HandleCombat(
-            FlightpathGemBlastDB.closeInCombatEnabled,
+            GemBlastDB.closeInCombatEnabled,
             addon.UI.frame:IsShown()
         )
     else
         action = addon.autoToggle:Handle(
             event,
-            FlightpathGemBlastDB.autoToggleEnabled,
+            GemBlastDB.autoToggleEnabled,
             UnitOnTaxi("player"),
             addon.UI.frame:IsShown()
         )
@@ -170,7 +170,7 @@ end
 addon.HandleAutoToggle = handleAutoToggle
 
 local function restoreWindow()
-    local window = FlightpathGemBlastDB.window
+    local window = GemBlastDB.window
 
     addon.UI.frame:ClearAllPoints()
     addon.UI.frame:SetPoint(window.point, UIParent, window.point, window.x, window.y)
@@ -178,19 +178,25 @@ local function restoreWindow()
 end
 
 local function initialize()
-    FlightpathGemBlastDB = addon.Persistence.Normalize(FlightpathGemBlastDB)
-    addon.scoreSession = addon.ScoreSession.New(FlightpathGemBlastDB, {
+    local savedData = addon.Persistence.SelectSavedData(
+        GemBlastDB,
+        BetterBejeweledDB
+    )
+
+    GemBlastDB = addon.Persistence.Normalize(savedData)
+    BetterBejeweledDB = nil
+    addon.scoreSession = addon.ScoreSession.New(GemBlastDB, {
         generateId = generateId,
     })
     addon.partyLeaderboardStore = addon.LeaderboardStore.New(
-        FlightpathGemBlastDB.partyTopScores,
+        GemBlastDB.partyTopScores,
         10
     )
     addon.publicLeaderboardStore = addon.LeaderboardStore.New(
-        FlightpathGemBlastDB.publicTopScores,
+        GemBlastDB.publicTopScores,
         10
     )
-    addon.controller = addon.Controller.New(FlightpathGemBlastDB)
+    addon.controller = addon.Controller.New(GemBlastDB)
     addon.autoToggle = addon.AutoToggle.New()
     addon.publicLeaderboard = addon.PublicLeaderboard.New({
         joinChannel = function(channelName)
@@ -313,7 +319,7 @@ events:SetScript("OnEvent", function(_, event, ...)
     end
 
     if event == "PLAYER_ENTERING_WORLD" then
-        if FlightpathGemBlastDB.publicLeaderboardEnabled
+        if GemBlastDB.publicLeaderboardEnabled
             and not addon.publicLeaderboard.enabled then
             joinPublicLeaderboard()
         end

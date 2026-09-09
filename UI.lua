@@ -209,7 +209,7 @@ function UI:SetLeaderboardMode(mode)
     end
 
     self.leaderboardMode = mode
-    FlightpathGemBlastDB.leaderboardMode = mode
+    GemBlastDB.leaderboardMode = mode
     self:RefreshLeaderboard()
 end
 
@@ -221,17 +221,17 @@ function UI:TogglePublicLeaderboard()
 
     if publicLeaderboard.state == "CONNECTED" then
         publicLeaderboard:Leave()
-        FlightpathGemBlastDB.publicLeaderboardEnabled = false
+        GemBlastDB.publicLeaderboardEnabled = false
         self.leaderboardMode = "party"
-        FlightpathGemBlastDB.leaderboardMode = "party"
+        GemBlastDB.leaderboardMode = "party"
 
         if addon.communication then
             addon.communication:ClearPublicScores()
         end
     else
-        FlightpathGemBlastDB.publicLeaderboardEnabled = true
+        GemBlastDB.publicLeaderboardEnabled = true
         self.leaderboardMode = "public"
-        FlightpathGemBlastDB.leaderboardMode = "public"
+        GemBlastDB.leaderboardMode = "public"
         addon.JoinPublicLeaderboard()
     end
 
@@ -241,7 +241,7 @@ end
 function UI:SetLeaderboardShown(shown)
     self.leaderboard:SetShown(shown)
     self.leaderboardToggle:SetText(shown and "<" or ">")
-    FlightpathGemBlastDB.leaderboardShown = shown
+    GemBlastDB.leaderboardShown = shown
 
     if shown then
         self:RefreshLeaderboard()
@@ -259,9 +259,9 @@ function UI:Save()
         return
     end
 
-    FlightpathGemBlastDB.board = addon.controller.board
-    FlightpathGemBlastDB.score = addon.controller.score
-    FlightpathGemBlastDB.soundEnabled = addon.controller.soundEnabled
+    GemBlastDB.board = addon.controller.board
+    GemBlastDB.score = addon.controller.score
+    GemBlastDB.soundEnabled = addon.controller.soundEnabled
 end
 
 function UI:ShowNotice(message)
@@ -732,7 +732,7 @@ end
 function UI:CreateLeaderboard(frame)
     local leaderboard = CreateFrame(
         "Frame",
-        "FlightpathGemBlastLeaderboard",
+        "GemBlastLeaderboard",
         frame,
         "BackdropTemplate"
     )
@@ -840,7 +840,7 @@ function UI:CreateLeaderboard(frame)
 
     local publicButton = CreateFrame(
         "Button",
-        "FlightpathGemBlastPublicLeaderboardButton",
+        "GemBlastPublicLeaderboardButton",
         leaderboard,
         "UIPanelButtonTemplate"
     )
@@ -852,7 +852,7 @@ function UI:CreateLeaderboard(frame)
 
     local partyTab = CreateFrame(
         "Button",
-        "FlightpathGemBlastPartyLeaderboardTab",
+        "GemBlastPartyLeaderboardTab",
         leaderboard,
         "UIPanelButtonTemplate"
     )
@@ -865,7 +865,7 @@ function UI:CreateLeaderboard(frame)
 
     local publicTab = CreateFrame(
         "Button",
-        "FlightpathGemBlastPublicLeaderboardTab",
+        "GemBlastPublicLeaderboardTab",
         leaderboard,
         "UIPanelButtonTemplate"
     )
@@ -878,7 +878,7 @@ function UI:CreateLeaderboard(frame)
 
     local toggle = CreateFrame(
         "Button",
-        "FlightpathGemBlastLeaderboardToggle",
+        "GemBlastLeaderboardToggle",
         frame,
         "UIPanelButtonTemplate"
     )
@@ -894,8 +894,8 @@ function UI:CreateLeaderboard(frame)
     self.publicLeaderboardButton = publicButton
     self.partyLeaderboardTab = partyTab
     self.publicLeaderboardTab = publicTab
-    self.leaderboardMode = FlightpathGemBlastDB.leaderboardMode or "party"
-    self:SetLeaderboardShown(FlightpathGemBlastDB.leaderboardShown)
+    self.leaderboardMode = GemBlastDB.leaderboardMode or "party"
+    self:SetLeaderboardShown(GemBlastDB.leaderboardShown)
 end
 
 function UI:CreateMenu()
@@ -964,10 +964,10 @@ function UI:CreateMenu()
         "Auto Open During Flight: On",
         -96,
         function()
-            FlightpathGemBlastDB.autoToggleEnabled =
-                not FlightpathGemBlastDB.autoToggleEnabled
+            GemBlastDB.autoToggleEnabled =
+                not GemBlastDB.autoToggleEnabled
             self.autoToggleButton:SetText(
-                FlightpathGemBlastDB.autoToggleEnabled
+                GemBlastDB.autoToggleEnabled
                     and "Auto Open During Flight: On"
                     or "Auto Open During Flight: Off"
             )
@@ -980,10 +980,10 @@ function UI:CreateMenu()
         "Close in Combat: On",
         -128,
         function()
-            FlightpathGemBlastDB.closeInCombatEnabled =
-                not FlightpathGemBlastDB.closeInCombatEnabled
+            GemBlastDB.closeInCombatEnabled =
+                not GemBlastDB.closeInCombatEnabled
             self.closeInCombatButton:SetText(
-                FlightpathGemBlastDB.closeInCombatEnabled
+                GemBlastDB.closeInCombatEnabled
                     and "Close in Combat: On"
                     or "Close in Combat: Off"
             )
@@ -1031,14 +1031,14 @@ function UI:CreateMenu()
                     math.floor(scale * 100 + 0.5)
                 )
             )
-            FlightpathGemBlastDB.window.scale = scale
+            GemBlastDB.window.scale = scale
         end
     )
 
     createMenuButton(menuPanel, "Reset Position", -272, function()
         self.frame:ClearAllPoints()
         self.frame:SetPoint("CENTER")
-        FlightpathGemBlastDB.window = {
+        GemBlastDB.window = {
             point = "CENTER",
             x = 0,
             y = 0,
@@ -1054,7 +1054,7 @@ end
 function UI:Create()
     local frame = CreateFrame(
         "Frame",
-        "FlightpathGemBlastFrame",
+        "GemBlastFrame",
         UIParent,
         "BackdropTemplate"
     )
@@ -1070,7 +1070,7 @@ function UI:Create()
     frame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
         local point, _, _, x, y = self:GetPoint()
-        FlightpathGemBlastDB.window = {
+        GemBlastDB.window = {
             point = point,
             x = x,
             y = y,
@@ -1096,11 +1096,11 @@ function UI:Create()
 
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
     title:SetPoint("TOPLEFT", 24, -18)
-    title:SetText("|cffed55ffFLIGHTPATH|r |cff9f70ffGEM BLAST|r")
+    title:SetText("|cffed55ffGEM|r |cff9f70ffBLAST|r")
 
     local closeButton = CreateFrame(
         "Button",
-        "FlightpathGemBlastCloseButton",
+        "GemBlastCloseButton",
         frame,
         "UIPanelCloseButton"
     )
@@ -1176,12 +1176,12 @@ function UI:Create()
     self.frame = frame
     self:CreateMenu()
     self.autoToggleButton:SetText(
-        FlightpathGemBlastDB.autoToggleEnabled
+        GemBlastDB.autoToggleEnabled
             and "Auto Open During Flight: On"
             or "Auto Open During Flight: Off"
     )
     self.closeInCombatButton:SetText(
-        FlightpathGemBlastDB.closeInCombatEnabled
+        GemBlastDB.closeInCombatEnabled
             and "Close in Combat: On"
             or "Close in Combat: Off"
     )
@@ -1191,7 +1191,7 @@ function UI:Create()
     self.scaleButton:SetText(
         string.format(
             "Scale: %d%%",
-            math.floor(FlightpathGemBlastDB.window.scale * 100 + 0.5)
+            math.floor(GemBlastDB.window.scale * 100 + 0.5)
         )
     )
     self.animator = addon.AnimationDirector.New({

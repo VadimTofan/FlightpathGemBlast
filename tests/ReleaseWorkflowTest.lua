@@ -13,10 +13,31 @@ local function readFile(path)
 end
 
 TestRunner.describe("CurseForge release workflow", function()
+    TestRunner.it("publishes a downloadable GitHub release", function()
+        -- Given
+        local workflow = readFile(".github/workflows/release.yml")
+
+        -- When
+        local canWriteReleases = workflow:find(
+            "permissions:\n  contents: write",
+            1,
+            true
+        ) ~= nil
+        local mapsGitHubToken = workflow:find(
+            "GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(canWriteReleases)
+        TestRunner.assertTrue(mapsGitHubToken)
+    end)
+
     TestRunner.it("publishes version tags with the configured project", function()
         -- Given
         local workflow = readFile(".github/workflows/release.yml")
-        local toc = readFile("FlightpathGemBlast.toc")
+        local toc = readFile("GemBlast.toc")
 
         -- When
         local usesVersionTags = workflow:find(

@@ -2,7 +2,8 @@ local ScorePacket = {}
 local _, addon = ...
 
 local ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local CHECKSUM_SALT = "FlightpathGemBlast:score:v1"
+local CHECKSUM_SALT = "GemBlast:score:v1"
+local LEGACY_CHECKSUM_SALT = "BetterBejeweled:score:v1"
 local MAX_SCORE = 999999999
 local MAX_LEVEL = 99999
 
@@ -45,9 +46,9 @@ local function isValidData(data)
         and string.match(data.guid, "^Player%-%w+%-%w+$") ~= nil
 end
 
-local function checksum(value)
+local function checksum(value, salt)
     local hash = 5381
-    local salted = CHECKSUM_SALT .. value
+    local salted = salt .. value
 
     for index = 1, #salted do
         hash = (hash * 33 + string.byte(salted, index)) % 2147483647
@@ -136,7 +137,7 @@ function ScorePacket.Encode(data)
         data.guid,
         data.name,
     }, "|")
-    local serialized = body .. "|" .. checksum(body)
+    local serialized = body .. "|" .. checksum(body, CHECKSUM_SALT)
 
     local encoded = "B1:" .. base64Encode(serialized)
     if #encoded > 255 then
@@ -175,7 +176,12 @@ function ScorePacket.Decode(encoded)
         guid,
         name,
     }, "|")
-    if tostring(checksum(body)) ~= sentChecksum then
+    local hasCurrentChecksum =
+        tostring(checksum(body, CHECKSUM_SALT)) == sentChecksum
+    local hasLegacyChecksum =
+        tostring(checksum(body, LEGACY_CHECKSUM_SALT)) == sentChecksum
+
+    if not hasCurrentChecksum and not hasLegacyChecksum then
         return nil
     end
 

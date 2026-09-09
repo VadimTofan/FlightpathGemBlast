@@ -75,7 +75,7 @@ TestRunner.describe("UI menu", function()
             true
         ) ~= nil
         local hasNewGamePopup = uiSource:find(
-            "FLIGHTPATHGEMBLAST_NEW_GAME",
+            "GEMBLAST_NEW_GAME",
             1,
             true
         ) ~= nil
@@ -85,7 +85,7 @@ TestRunner.describe("UI menu", function()
             true
         ) ~= nil
         local keepsMainCloseButton = uiSource:find(
-            '"FlightpathGemBlastCloseButton"',
+            '"GemBlastCloseButton"',
             1,
             true
         ) ~= nil

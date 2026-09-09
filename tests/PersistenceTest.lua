@@ -1,6 +1,32 @@
 local TestRunner = require("tests.TestRunner")
 local Persistence = require("Persistence")
 
+-- Saved data migration
+TestRunner.describe("Persistence.SelectSavedData", function()
+    TestRunner.it("uses legacy data when the new store is empty", function()
+        -- Given
+        local legacyData = { score = 750 }
+
+        -- When
+        local selected = Persistence.SelectSavedData(nil, legacyData)
+
+        -- Then
+        TestRunner.assertEqual(legacyData, selected)
+    end)
+
+    TestRunner.it("prefers data already saved under the new identity", function()
+        -- Given
+        local currentData = { score = 1000 }
+        local legacyData = { score = 750 }
+
+        -- When
+        local selected = Persistence.SelectSavedData(currentData, legacyData)
+
+        -- Then
+        TestRunner.assertEqual(currentData, selected)
+    end)
+end)
+
 -- Saved data validation
 TestRunner.describe("Persistence.Normalize", function()
     TestRunner.it("disables the public leaderboard by default", function()

@@ -54,6 +54,22 @@ TestRunner.describe("ScorePacket", function()
         TestRunner.assertEqual(expected.level, decoded.level)
     end)
 
+    TestRunner.it("decodes leaderboard packets saved before the rename", function()
+        -- Given
+        local ScorePacket = require("Game.ScorePacket")
+        local legacyPacket = "B1:MXxhY2NvdW50MDAwMDAwMDAxfHNlc3Npb24w"
+            .. "MDAwMDAwMDF8MXwxMjUwfDR8UGxheWVyLTEtQUJDMTIzfFZh"
+            .. "ZGltLVJlYWxtfDEzNTYzNjQ0MjQ="
+
+        -- When
+        local decoded = ScorePacket.Decode(legacyPacket)
+
+        -- Then
+        TestRunner.assertEqual("account000000001", decoded.accountId)
+        TestRunner.assertEqual(1250, decoded.score)
+        TestRunner.assertEqual(4, decoded.level)
+    end)
+
     TestRunner.it("rejects a packet changed after encoding", function()
         -- Given
         local ScorePacket = require("Game.ScorePacket")

@@ -28,7 +28,7 @@ TestRunner.describe("UI window controls", function()
 
         -- When
         local usesCloseButton = source:find(
-            '"FlightpathGemBlastCloseButton"',
+            '"GemBlastCloseButton"',
             1,
             true
         ) ~= nil

@@ -1,6 +1,6 @@
-# Flightpath Gem Blast
+# Gem Blast
 
-Flightpath Gem Blast is an original 8x8 fantasy match-three game for Retail
+Gem Blast is an original 8x8 fantasy match-three game for Retail
 World of Warcraft. Swap gems, build cascades, create special pieces, progress
 through levels, and compare scores without leaving the game.
 
@@ -35,7 +35,7 @@ The collapsible leaderboard panel includes two modes:
 - **Party Top 10** records scores received from party, raid, and instance-group
   members.
 - **Public Top 10** exchanges scores through the optional hidden
-  Flightpath Gem Blast channel.
+  Gem Blast channel.
 
 Scores are stored by account identity, so characters belonging to the same
 account share one leaderboard position. The highest recorded score is kept,
@@ -46,10 +46,10 @@ until participation is enabled from the leaderboard panel.
 
 ## Opening and closing the game
 
-Open Flightpath Gem Blast from its minimap button or enter:
+Open Gem Blast from its minimap button or enter:
 
 ```text
-/fgb
+/gb
 ```
 
 Close the window with its **X** button or by pressing **Escape**. When the menu
@@ -69,7 +69,7 @@ The minimap button can be dragged around the minimap border.
 
 ## Saved data
 
-Flightpath Gem Blast saves the following account-wide data between sessions:
+Gem Blast saves the following account-wide data between sessions:
 
 - Current board and score.
 - Party and public Top 10 scores.
@@ -82,16 +82,16 @@ Installing an addon update does not reset this data.
 
 ## Installation
 
-Install Flightpath Gem Blast with the CurseForge app, or install it manually:
+Install Gem Blast with the CurseForge app, or install it manually:
 
 1. Download the latest release archive.
-2. Extract the `FlightpathGemBlast` folder into
+2. Extract the `GemBlast` folder into
    `World of Warcraft/_retail_/Interface/AddOns/`.
 3. Restart World of Warcraft or enter `/reload` if the addon was already
    installed.
-4. Enable Flightpath Gem Blast from the AddOns list.
+4. Enable Gem Blast from the AddOns list.
 
 ## Support
 
-Flightpath Gem Blast is maintained by Vadim. Report bugs or suggest features
-through [GitHub Issues](https://github.com/VadimTofan/FlightpathGemBlast/issues).
+Gem Blast is maintained by Vadim. Report bugs or suggest features
+through [GitHub Issues](https://github.com/VadimTofan/GemBlast/issues).

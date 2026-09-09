@@ -1,11 +1,11 @@
 ## Interface: 120100
-## Title: Flightpath Gem Blast
+## Title: Gem Blast
 ## Notes: Play an original fantasy match-three game inside World of Warcraft.
 ## Author: Vadim
 ## Version: 0.1.4
 ## X-Curse-Project-ID: 1688263
-## IconTexture: Interface\AddOns\FlightpathGemBlast\Media\Gems64\Blue.png
-## SavedVariables: FlightpathGemBlastDB
+## IconTexture: Interface\AddOns\GemBlast\Media\Gems64\Blue.png
+## SavedVariables: GemBlastDB, BetterBejeweledDB
 
 Game\Board.lua
 Game\Scoring.lua

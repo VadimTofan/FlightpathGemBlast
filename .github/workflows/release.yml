@@ -6,13 +6,14 @@ on:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
     env:
       CF_API_KEY: ${{ secrets.CF_API_TOKEN }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Check out repository
@@ -31,7 +32,7 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
 
-          archives=(.release/FlightpathGemBlast-*.zip)
+          archives=(.release/GemBlast-*.zip)
           if (( ${#archives[@]} != 1 )); then
             echo "Expected one release archive, found ${#archives[@]}."
             exit 1
@@ -41,7 +42,7 @@ jobs:
           unzip -t "$archive"
           archive_entries="$(unzip -Z1 "$archive")"
 
-          if grep -Ev '^FlightpathGemBlast/' <<< "$archive_entries" \
+          if grep -Ev '^GemBlast/' <<< "$archive_entries" \
               | grep -q .; then
             echo "Release archive contains an unexpected root path."
             exit 1
@@ -58,15 +59,15 @@ jobs:
               continue
             fi
 
-            packaged_entry="FlightpathGemBlast/${entry//\\//}"
+            packaged_entry="GemBlast/${entry//\\//}"
             if ! grep -Fxq "$packaged_entry" <<< "$archive_entries"; then
               echo "Missing TOC file: $packaged_entry"
               exit 1
             fi
-          done < FlightpathGemBlast.toc
+          done < GemBlast.toc
 
           while IFS= read -r asset; do
-            packaged_asset="FlightpathGemBlast/$asset"
+            packaged_asset="GemBlast/$asset"
             if ! grep -Fxq "$packaged_asset" <<< "$archive_entries"; then
               echo "Missing runtime asset: $packaged_asset"
               exit 1
@@ -74,7 +75,7 @@ jobs:
           done < <(git ls-files 'Media/*')
 
           if grep -Eq \
-              '^FlightpathGemBlast/(tests/|\.github/|README\.md$|\.pkgmeta$|\.gitignore$)' \
+              '^GemBlast/(tests/|\.github/|README\.md$|\.pkgmeta$|\.gitignore$)' \
               <<< "$archive_entries"; then
             echo "Release archive contains development files."
             exit 1

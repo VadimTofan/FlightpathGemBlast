@@ -9,7 +9,7 @@ TestRunner.describe("UI leaderboard", function()
 
         -- When
         local hasPanel = source:find(
-            '"FlightpathGemBlastLeaderboard"',
+            '"GemBlastLeaderboard"',
             1,
             true
         ) ~= nil
@@ -19,7 +19,7 @@ TestRunner.describe("UI leaderboard", function()
             true
         ) ~= nil
         local hasToggle = source:find(
-            '"FlightpathGemBlastLeaderboardToggle"',
+            '"GemBlastLeaderboardToggle"',
             1,
             true
         ) ~= nil
@@ -160,7 +160,7 @@ TestRunner.describe("UI public leaderboard", function()
 
         -- When
         local hasButton = source:find(
-            '"FlightpathGemBlastPublicLeaderboardButton"',
+            '"GemBlastPublicLeaderboardButton"',
             1,
             true
         ) ~= nil
@@ -194,7 +194,7 @@ TestRunner.describe("UI public leaderboard", function()
             true
         ) ~= nil
         local persistsChoice = source:find(
-            "FlightpathGemBlastDB.publicLeaderboardEnabled",
+            "GemBlastDB.publicLeaderboardEnabled",
             1,
             true
         ) ~= nil
@@ -212,12 +212,12 @@ TestRunner.describe("UI public leaderboard", function()
 
         -- When
         local hasPartyTab = source:find(
-            '"FlightpathGemBlastPartyLeaderboardTab"',
+            '"GemBlastPartyLeaderboardTab"',
             1,
             true
         ) ~= nil
         local hasPublicTab = source:find(
-            '"FlightpathGemBlastPublicLeaderboardTab"',
+            '"GemBlastPublicLeaderboardTab"',
             1,
             true
         ) ~= nil

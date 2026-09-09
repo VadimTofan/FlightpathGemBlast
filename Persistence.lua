@@ -10,6 +10,14 @@ local PublicLeaderboardSeeds = type(addon) == "table"
     or require("Game.PublicLeaderboardSeeds")
 local Persistence = {}
 
+function Persistence.SelectSavedData(currentData, legacyData)
+    if type(currentData) == "table" then
+        return currentData
+    end
+
+    return legacyData
+end
+
 local function recordEncoded(store, savedEntry)
     if type(savedEntry) ~= "table"
         or type(savedEntry.encoded) ~= "string" then

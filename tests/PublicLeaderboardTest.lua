@@ -39,7 +39,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
         publicLeaderboard:Join()
 
         -- Then
-        TestRunner.assertEqual("Flightpath Gem Blast", joinedChannel)
+        TestRunner.assertEqual("GemBlast", joinedChannel)
         TestRunner.assertTrue(publicLeaderboard.enabled)
         TestRunner.assertEqual("JOINING", publicLeaderboard.state)
         TestRunner.assertEqual("Joining...", publicLeaderboard:GetButtonLabel())
@@ -66,7 +66,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
         TestRunner.assertTrue(newlyConnected)
         TestRunner.assertEqual("CONNECTED", publicLeaderboard.state)
         TestRunner.assertEqual(7, publicLeaderboard.channelId)
-        TestRunner.assertEqual("Flightpath Gem Blast", hiddenChannel)
+        TestRunner.assertEqual("GemBlast", hiddenChannel)
         TestRunner.assertEqual(
             "Leave Public Leaderboard",
             publicLeaderboard:GetButtonLabel()
@@ -92,7 +92,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
         publicLeaderboard:Leave()
 
         -- Then
-        TestRunner.assertEqual("Flightpath Gem Blast", leftChannel)
+        TestRunner.assertEqual("GemBlast", leftChannel)
         TestRunner.assertFalse(publicLeaderboard.enabled)
         TestRunner.assertEqual("DISCONNECTED", publicLeaderboard.state)
         TestRunner.assertEqual(nil, publicLeaderboard.channelId)
@@ -140,7 +140,7 @@ TestRunner.describe("PublicLeaderboard channel lifecycle", function()
 
         -- When
         local isPublic = publicLeaderboard:IsChannelTarget(
-            "7. Flightpath Gem Blast"
+            "7. GemBlast"
         )
 
         -- Then
