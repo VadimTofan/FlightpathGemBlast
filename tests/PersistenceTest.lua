@@ -29,6 +29,32 @@ end)
 
 -- Saved data validation
 TestRunner.describe("Persistence.Normalize", function()
+    TestRunner.it("enables flight auto-toggle by default", function()
+        -- Given
+        local savedData = nil
+
+        -- When
+        local normalized = Persistence.Normalize(savedData)
+
+        -- Then
+        TestRunner.assertTrue(normalized.autoToggleEnabled)
+    end)
+
+    TestRunner.it("preserves an explicitly disabled flight auto-toggle", function()
+        -- Given
+        local Board = require("Game.Board")
+        local savedData = {
+            board = Board.Create(),
+            autoToggleEnabled = false,
+        }
+
+        -- When
+        local normalized = Persistence.Normalize(savedData)
+
+        -- Then
+        TestRunner.assertFalse(normalized.autoToggleEnabled)
+    end)
+
     TestRunner.it("disables the public leaderboard by default", function()
         -- Given
         local savedData = nil

@@ -97,7 +97,7 @@ local function defaults()
             PublicLeaderboardSeeds.GetEntries()
         ),
         scoreSequence = 0,
-        autoToggleEnabled = false,
+        autoToggleEnabled = true,
         closeInCombatEnabled = false,
         window = { point = "CENTER", x = 0, y = 0, scale = 1 },
         minimapAngle = 225,
@@ -134,7 +134,7 @@ function Persistence.Normalize(savedData)
         0,
         math.floor(tonumber(savedData.scoreSequence) or 0)
     )
-    normalized.autoToggleEnabled = savedData.autoToggleEnabled == true
+    normalized.autoToggleEnabled = savedData.autoToggleEnabled ~= false
     normalized.closeInCombatEnabled =
         savedData.closeInCombatEnabled == true
 
