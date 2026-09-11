@@ -101,6 +101,27 @@ TestRunner.describe("SpecialEffects animation module", function()
         TestRunner.assertEqual(0, distantAlpha)
     end)
 
+    TestRunner.it("animates a cyan line along a directional blast", function()
+        -- Given
+        local effects = {
+            {
+                effectType = "lineBomb",
+                row = 4,
+                column = 4,
+                direction = "horizontal",
+            },
+        }
+
+        -- When
+        local _, _, _, alpha, _, red, green, blue =
+            SpecialEffects.GetCellVisual(effects, 4, 8, 0.5)
+
+        -- Then
+        TestRunner.assertTrue(alpha > 0)
+        TestRunner.assertTrue(blue > red)
+        TestRunner.assertTrue(green > red)
+    end)
+
     TestRunner.it("uses a blue double pulse for a spark", function()
         -- Given
         local effects = {

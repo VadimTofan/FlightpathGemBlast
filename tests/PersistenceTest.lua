@@ -105,6 +105,40 @@ TestRunner.describe("Persistence.Normalize", function()
         TestRunner.assertTrue(normalized.publicLeaderboardEnabled)
     end)
 
+    TestRunner.it("preserves a saved board with a colorless spark", function()
+        -- Given
+        local Board = require("Game.Board")
+        local board = Board.Create()
+        board[4][4] = { special = "color" }
+        local savedData = {
+            board = board,
+            score = 750,
+        }
+
+        -- When
+        local normalized = Persistence.Normalize(savedData)
+
+        -- Then
+        TestRunner.assertEqual(board, normalized.board)
+        TestRunner.assertEqual(750, normalized.score)
+        TestRunner.assertEqual(nil, normalized.board[4][4].gemType)
+    end)
+
+    TestRunner.it("preserves a saved board with a directional bomb", function()
+        -- Given
+        local Board = require("Game.Board")
+        local board = Board.Create()
+        board[4][4] = { gemType = 3, special = "directional" }
+        local savedData = { board = board, score = 750 }
+
+        -- When
+        local normalized = Persistence.Normalize(savedData)
+
+        -- Then
+        TestRunner.assertEqual(board, normalized.board)
+        TestRunner.assertEqual("directional", normalized.board[4][4].special)
+    end)
+
     TestRunner.it("keeps valid encoded leaderboard entries", function()
         -- Given
         local ScorePacket = require("Game.ScorePacket")

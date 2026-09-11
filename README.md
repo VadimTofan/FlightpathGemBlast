@@ -1,5 +1,6 @@
 # Gem Blast
 
+https://www.curseforge.com/wow/addons/gem-blast
 Gem Blast is an original 8x8 fantasy match-three game for Retail
 World of Warcraft. Swap gems, build cascades, create special pieces, progress
 through levels, and compare scores without leaving the game.
@@ -20,9 +21,15 @@ It does not require external libraries.
 
 ## Special gems
 
-Matching four gems creates a bomb. Triggering a bomb clears the surrounding
-3x3 area. Swapping two bombs together creates a larger 5x5 explosion centered
-on the destination cell.
+Matching four gems in a straight line creates a directionless line bomb.
+Moving it left or right clears its row; moving it up or down clears its column.
+If another effect triggers it, the direction is random. Matching a T or L
+shape creates an area bomb that clears the surrounding 3x3 area.
+
+Swapping two line bombs clears a full row-and-column cross. Swapping a line
+bomb with an area bomb clears three full rows or columns based on the swap
+direction. Swapping two area bombs creates a larger 5x5 explosion centered on
+the destination cell.
 
 Matching five gems creates a spark. Swap the spark with another gem to clear
 every gem of that color from the board. Bombs and sparks are preserved when

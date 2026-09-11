@@ -31,7 +31,7 @@ TestRunner.describe("UI special-gem marker", function()
             true
         ) ~= nil
         local usesSparkBorderColor = source:find(
-            "local borderRed = isColorSpecial and 0.55 or 1",
+            "isColorSpecial and 0.55 or 1",
             1,
             true
         ) ~= nil
@@ -139,6 +139,35 @@ TestRunner.describe("UI special-effect animation", function()
 end)
 
 TestRunner.describe("UI explosive-gem marker", function()
+    TestRunner.it("shows directional bombs with a distinct cyan marker", function()
+        -- Given
+        local file = assert(io.open("UI.lua", "r"))
+        local source = file:read("*a")
+        file:close()
+
+        -- When
+        local recognizesDirectional = source:find(
+            'cell.special == "directional"',
+            1,
+            true
+        ) ~= nil
+        local usesCyanRed = source:find(
+            "isDirectional and 0.25",
+            1,
+            true
+        ) ~= nil
+        local usesCyanGreen = source:find(
+            "isDirectional and 0.85",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(recognizesDirectional)
+        TestRunner.assertTrue(usesCyanRed)
+        TestRunner.assertTrue(usesCyanGreen)
+    end)
+
     TestRunner.it("uses a corner badge and cell outline", function()
         -- Given
         local file = assert(io.open("UI.lua", "r"))
@@ -160,6 +189,47 @@ TestRunner.describe("UI explosive-gem marker", function()
         -- Then
         TestRunner.assertTrue(usesCornerBadge)
         TestRunner.assertTrue(usesCellOutline)
+    end)
+
+    TestRunner.it("uses a larger compass badge for directional bombs", function()
+        -- Given
+        local file = assert(io.open("UI.lua", "r"))
+        local source = file:read("*a")
+        file:close()
+
+        -- When
+        local referencesCompass = source:find(
+            "Media\\\\Compass64.png",
+            1,
+            false
+        ) ~= nil
+        local createsDirectionalMarker = source:find(
+            'button.directionalMarker = button:CreateTexture(nil, "OVERLAY")',
+            1,
+            true
+        ) ~= nil
+        local usesLargerBadge = source:find(
+            "button.directionalMarker:SetSize(30, 30)",
+            1,
+            true
+        ) ~= nil
+        local showsCompassForDirectional = source:find(
+            "button.directionalMarker:SetShown(isDirectional)",
+            1,
+            true
+        ) ~= nil
+        local limitsBombToAreaBombs = source:find(
+            "button.bombMarker:SetShown(isExplosive)",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(referencesCompass)
+        TestRunner.assertTrue(createsDirectionalMarker)
+        TestRunner.assertTrue(usesLargerBadge)
+        TestRunner.assertTrue(showsCompassForDirectional)
+        TestRunner.assertTrue(limitsBombToAreaBombs)
     end)
 end)
 

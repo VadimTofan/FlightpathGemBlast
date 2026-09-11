@@ -5,8 +5,120 @@ local function cell(gemType, special)
     return { gemType = gemType, special = special }
 end
 
+local function countPositions(positions)
+    local count = 0
+
+    for _ in pairs(positions) do
+        count = count + 1
+    end
+
+    return count
+end
+
+-- Match detection
+TestRunner.describe("Board.FindMatches special gems", function()
+    TestRunner.it("does not match a legacy spark by its stored color", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+        end
+        board[4][2] = cell(3)
+        board[4][3] = cell(3, "color")
+        board[4][4] = cell(3)
+
+        -- When
+        local matches = Board.FindMatches(board)
+
+        -- Then
+        TestRunner.assertEqual(nil, next(matches))
+    end)
+end)
+
 -- Special gem effects
 TestRunner.describe("Board.ExpandSpecialEffects", function()
+    TestRunner.it("clears a row for a horizontally activated directional bomb", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[4][4] = cell(2, "directional")
+
+        -- When
+        local expanded, effects = Board.ExpandSpecialEffects(
+            board,
+            { ["4:4"] = true },
+            nil,
+            { ["4:4"] = "horizontal" }
+        )
+
+        -- Then
+        TestRunner.assertEqual(8, countPositions(expanded))
+        TestRunner.assertTrue(expanded["4:1"])
+        TestRunner.assertTrue(expanded["4:8"])
+        TestRunner.assertEqual("lineBomb", effects[1].effectType)
+        TestRunner.assertEqual("horizontal", effects[1].direction)
+    end)
+
+    TestRunner.it("uses the match axis for a stationary directional bomb", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[4][4] = cell(2, "directional")
+        local matches = {
+            ["4:3"] = true,
+            ["4:4"] = true,
+            ["4:5"] = true,
+        }
+
+        -- When
+        local expanded, effects = Board.ExpandSpecialEffects(board, matches)
+
+        -- Then
+        TestRunner.assertTrue(expanded["4:1"])
+        TestRunner.assertTrue(expanded["4:8"])
+        TestRunner.assertEqual("horizontal", effects[1].direction)
+    end)
+
+    TestRunner.it("uses the match axis when the directional bomb is at the end", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[4][5] = cell(2, "directional")
+        local matches = {
+            ["4:3"] = true,
+            ["4:4"] = true,
+            ["4:5"] = true,
+        }
+        local function chooseVertical()
+            return 2
+        end
+
+        -- When
+        local _, effects = Board.ExpandSpecialEffects(
+            board,
+            matches,
+            chooseVertical
+        )
+
+        -- Then
+        TestRunner.assertEqual("horizontal", effects[1].direction)
+    end)
+
     TestRunner.it("expands an explosive gem to its surrounding area", function()
         -- Given
         local board = {}
@@ -163,7 +275,7 @@ TestRunner.describe("Board.ExpandSpecialEffects", function()
 end)
 
 TestRunner.describe("Board.DetermineSpecial", function()
-    TestRunner.it("creates an explosive gem from four in a row", function()
+    TestRunner.it("creates a directional gem from four in a row", function()
         -- Given
         local board = {}
         for row = 1, 8 do
@@ -188,6 +300,59 @@ TestRunner.describe("Board.DetermineSpecial", function()
         -- Then
         TestRunner.assertEqual(4, row)
         TestRunner.assertEqual(5, column)
+        TestRunner.assertEqual("directional", special)
+    end)
+
+    TestRunner.it("creates an explosive gem from a T match", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(((row + column) % 7) + 1)
+            end
+        end
+        for column = 3, 5 do
+            board[4][column] = cell(2)
+        end
+        board[2][4] = cell(2)
+        board[3][4] = cell(2)
+        local matches = Board.FindMatches(board)
+
+        -- When
+        local _, _, special = Board.DetermineSpecial(board, matches, 4, 4)
+
+        -- Then
+        TestRunner.assertEqual("explosive", special)
+    end)
+
+    TestRunner.it("prioritizes a T bomb over a straight four candidate", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(((row + column) % 7) + 1)
+            end
+        end
+        for column = 2, 5 do
+            board[4][column] = cell(2)
+        end
+        board[2][4] = cell(2)
+        board[3][4] = cell(2)
+        local matches = Board.FindMatches(board)
+
+        -- When
+        local row, column, special = Board.DetermineSpecial(
+            board,
+            matches,
+            4,
+            2
+        )
+
+        -- Then
+        TestRunner.assertEqual(4, row)
+        TestRunner.assertEqual(4, column)
         TestRunner.assertEqual("explosive", special)
     end)
 
@@ -214,6 +379,35 @@ TestRunner.describe("Board.DetermineSpecial", function()
 end)
 
 TestRunner.describe("Board.TrySwap color gem", function()
+    TestRunner.it("marks spark-converted directional bombs for random activation", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(((row + column) % 7) + 1)
+            end
+        end
+        board[4][4] = cell(nil, "color")
+        board[4][5] = cell(2, "directional")
+        board[2][2] = cell(2)
+
+        -- When
+        local accepted, _, _, activationDirections = Board.TrySwap(
+            board,
+            4,
+            4,
+            4,
+            5
+        )
+
+        -- Then
+        TestRunner.assertTrue(accepted)
+        TestRunner.assertEqual("directional", board[2][2].special)
+        activationDirections = activationDirections or {}
+        TestRunner.assertEqual("random", activationDirections["2:2"])
+    end)
+
     TestRunner.it("accepts the swap and selects the other gem color", function()
         -- Given
         local board = {}
@@ -298,6 +492,71 @@ TestRunner.describe("Board.TrySwap color gem", function()
 end)
 
 TestRunner.describe("Board.TrySwap explosive gems", function()
+    TestRunner.it("clears a cross when two directional bombs are swapped", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[4][4] = cell(1, "directional")
+        board[4][5] = cell(2, "directional")
+
+        -- When
+        local accepted, blastCells, effects = Board.TrySwap(
+            board,
+            4,
+            4,
+            4,
+            5
+        )
+
+        -- Then
+        TestRunner.assertTrue(accepted)
+        TestRunner.assertEqual(15, countPositions(blastCells or {}))
+        blastCells = blastCells or {}
+        TestRunner.assertTrue(blastCells["1:5"])
+        TestRunner.assertTrue(blastCells["8:5"])
+        TestRunner.assertTrue(blastCells["4:1"])
+        TestRunner.assertTrue(blastCells["4:8"])
+        local effect = effects and effects[1] or {}
+        TestRunner.assertEqual("crossBomb", effect.effectType)
+    end)
+
+    TestRunner.it("clears three rows for a horizontal directional area swap", function()
+        -- Given
+        local board = {}
+        for row = 1, 8 do
+            board[row] = {}
+            for column = 1, 8 do
+                board[row][column] = cell(1)
+            end
+        end
+        board[4][4] = cell(1, "directional")
+        board[4][5] = cell(2, "explosive")
+
+        -- When
+        local accepted, blastCells, effects = Board.TrySwap(
+            board,
+            4,
+            4,
+            4,
+            5
+        )
+
+        -- Then
+        TestRunner.assertTrue(accepted)
+        TestRunner.assertEqual(24, countPositions(blastCells or {}))
+        blastCells = blastCells or {}
+        TestRunner.assertTrue(blastCells["3:1"])
+        TestRunner.assertTrue(blastCells["5:8"])
+        local effect = effects and effects[1] or {}
+        TestRunner.assertEqual("wideLineBomb", effect.effectType)
+        TestRunner.assertEqual("horizontal", effect.direction)
+    end)
+
     TestRunner.it("centers a five by five blast on the destination", function()
         -- Given
         local board = {}

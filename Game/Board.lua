@@ -5,7 +5,11 @@ local BOARD_SIZE = 8
 local GEM_TYPE_COUNT = 7
 
 local function getGemType(cell)
-    return cell and cell.gemType
+    if not cell or cell.special == "color" then
+        return nil
+    end
+
+    return cell.gemType
 end
 
 local function createsMatchAt(board, row, column, gemType)
@@ -99,7 +103,38 @@ local function getCombinedBombBlastCells(centerRow, centerColumn)
     return cells
 end
 
-local function turnMatchedColorIntoBombs(board, matches, gemType)
+local function getCrossBlastCells(centerRow, centerColumn)
+    local cells = {}
+
+    for index = 1, BOARD_SIZE do
+        cells[centerRow .. ":" .. index] = true
+        cells[index .. ":" .. centerColumn] = true
+    end
+
+    return cells
+end
+
+local function getWideLineBlastCells(centerRow, centerColumn, direction)
+    local cells = {}
+
+    for offset = -1, 1 do
+        for index = 1, BOARD_SIZE do
+            local row = direction == "horizontal"
+                and centerRow + offset or index
+            local column = direction == "horizontal"
+                and index or centerColumn + offset
+
+            if row >= 1 and row <= BOARD_SIZE
+                and column >= 1 and column <= BOARD_SIZE then
+                cells[row .. ":" .. column] = true
+            end
+        end
+    end
+
+    return cells
+end
+
+local function turnMatchedColorIntoBombs(board, matches, gemType, specialType)
     for position in pairs(matches) do
         local row, column = string.match(position, "^(%d+):(%d+)$")
         local cell = board[tonumber(row)][tonumber(column)]
@@ -107,7 +142,7 @@ local function turnMatchedColorIntoBombs(board, matches, gemType)
         if cell
             and cell.gemType == gemType
             and cell.special ~= "color" then
-            cell.special = "explosive"
+            cell.special = specialType
         end
     end
 end
@@ -129,18 +164,40 @@ function Board.TrySwap(board, firstRow, firstColumn, secondRow, secondColumn)
     local secondIsColor = secondCell.special == "color"
     local firstIsExplosive = firstCell.special == "explosive"
     local secondIsExplosive = secondCell.special == "explosive"
-    local isColorBombSwap = firstIsColor and secondIsExplosive
-        or secondIsColor and firstIsExplosive
+    local firstIsDirectional = firstCell.special == "directional"
+    local secondIsDirectional = secondCell.special == "directional"
+    local firstIsBomb = firstIsExplosive or firstIsDirectional
+    local secondIsBomb = secondIsExplosive or secondIsDirectional
+    local isColorBombSwap = firstIsColor and secondIsBomb
+        or secondIsColor and firstIsBomb
 
-    if firstIsExplosive and secondIsExplosive then
+    if firstIsBomb and secondIsBomb then
         swap(board, firstRow, firstColumn, secondRow, secondColumn)
 
-        return true, getCombinedBombBlastCells(secondRow, secondColumn), {
+        local direction = firstRow == secondRow
+            and "horizontal" or "vertical"
+        local effectType = "bombCombo"
+        local blastCells = getCombinedBombBlastCells(secondRow, secondColumn)
+
+        if firstIsDirectional and secondIsDirectional then
+            effectType = "crossBomb"
+            blastCells = getCrossBlastCells(secondRow, secondColumn)
+        elseif firstIsDirectional or secondIsDirectional then
+            effectType = "wideLineBomb"
+            blastCells = getWideLineBlastCells(
+                secondRow,
+                secondColumn,
+                direction
+            )
+        end
+
+        return true, blastCells, {
             {
-                effectType = "bombCombo",
+                effectType = effectType,
                 row = secondRow,
                 column = secondColumn,
                 radius = 2,
+                direction = direction,
                 excludedBombs = {
                     [firstRow .. ":" .. firstColumn] = true,
                     [secondRow .. ":" .. secondColumn] = true,
@@ -162,7 +219,38 @@ function Board.TrySwap(board, firstRow, firstColumn, secondRow, secondColumn)
         matches[colorRow .. ":" .. colorColumn] = true
 
         if isColorBombSwap then
-            turnMatchedColorIntoBombs(board, matches, clearedGemType)
+            local bombCell = firstIsColor and secondCell or firstCell
+            turnMatchedColorIntoBombs(
+                board,
+                matches,
+                clearedGemType,
+                bombCell.special
+            )
+
+            if bombCell.special == "directional" then
+                local activationDirections = {}
+
+                for position in pairs(matches) do
+                    local row, column = string.match(
+                        position,
+                        "^(%d+):(%d+)$"
+                    )
+                    local cell = board[tonumber(row)][tonumber(column)]
+
+                    if cell and cell.special == "directional" then
+                        activationDirections[position] = "random"
+                    end
+                end
+
+                return true, matches, {
+                    {
+                        effectType = "spark",
+                        row = colorRow,
+                        column = colorColumn,
+                        gemType = clearedGemType,
+                    },
+                }, activationDirections
+            end
         end
 
         return true, matches, {
@@ -177,8 +265,23 @@ function Board.TrySwap(board, firstRow, firstColumn, secondRow, secondColumn)
 
     swap(board, firstRow, firstColumn, secondRow, secondColumn)
 
-    if Board.HasMatch(board) then
-        return true
+    local swapMatches = Board.FindMatches(board)
+    if next(swapMatches) then
+        local direction = firstRow == secondRow
+            and "horizontal" or "vertical"
+        local activationDirections = {}
+
+        if firstCell.special == "directional"
+            and swapMatches[secondRow .. ":" .. secondColumn] then
+            activationDirections[secondRow .. ":" .. secondColumn] = direction
+        end
+
+        if secondCell.special == "directional"
+            and swapMatches[firstRow .. ":" .. firstColumn] then
+            activationDirections[firstRow .. ":" .. firstColumn] = direction
+        end
+
+        return true, nil, nil, activationDirections
     end
 
     swap(board, firstRow, firstColumn, secondRow, secondColumn)
@@ -271,7 +374,44 @@ local function getRandomPresentGemType(board, randomFunction)
     return choices[randomFunction(1, #choices)]
 end
 
-function Board.ExpandSpecialEffects(board, matches, random)
+local function getMatchedAxis(matches, row, column)
+    local function countAxis(rowStep, columnStep)
+        local count = 1
+
+        for direction = -1, 1, 2 do
+            local targetRow = row + rowStep * direction
+            local targetColumn = column + columnStep * direction
+
+            while matches[targetRow .. ":" .. targetColumn] do
+                count = count + 1
+                targetRow = targetRow + rowStep * direction
+                targetColumn = targetColumn + columnStep * direction
+            end
+        end
+
+        return count
+    end
+
+    local horizontal = countAxis(0, 1) >= 3
+    local vertical = countAxis(1, 0) >= 3
+
+    if horizontal and not vertical then
+        return "horizontal"
+    end
+
+    if vertical and not horizontal then
+        return "vertical"
+    end
+
+    return nil
+end
+
+function Board.ExpandSpecialEffects(
+    board,
+    matches,
+    random,
+    activationDirections
+)
     local randomFunction = random or defaultRandom
     local expanded = {}
     local pending = {}
@@ -323,6 +463,36 @@ function Board.ExpandSpecialEffects(board, matches, random)
                         pending[#pending + 1] = target
                         pendingBombTriggers[#pendingBombTriggers + 1] = true
                     end
+                end
+            end
+        elseif cell
+            and cell.special == "directional"
+            and not triggeredBombs[position] then
+            triggeredBombs[position] = true
+            local requestedDirection = activationDirections
+                and activationDirections[position]
+            local direction = requestedDirection ~= "random"
+                and requestedDirection
+                or (not wasHitByBomb and not requestedDirection
+                    and getMatchedAxis(matches, row, column))
+                or (randomFunction(1, 2) == 1
+                    and "horizontal" or "vertical")
+            effects[#effects + 1] = {
+                effectType = "lineBomb",
+                row = row,
+                column = column,
+                direction = direction,
+            }
+
+            for index = 1, BOARD_SIZE do
+                local targetRow = direction == "horizontal" and row or index
+                local targetColumn = direction == "horizontal" and index or column
+                local target = targetRow .. ":" .. targetColumn
+
+                if not expanded[target] then
+                    expanded[target] = true
+                    pending[#pending + 1] = target
+                    pendingBombTriggers[#pendingBombTriggers + 1] = true
                 end
             end
         elseif cell
@@ -409,6 +579,7 @@ function Board.DetermineSpecial(board, matches, preferredRow, preferredColumn)
     end
 
     local explosiveCandidate
+    local directionalCandidate
 
     for _, position in ipairs(candidates) do
         local row, column = string.match(position, "^(%d+):(%d+)$")
@@ -421,14 +592,19 @@ function Board.DetermineSpecial(board, matches, preferredRow, preferredColumn)
             return row, column, "color"
         end
 
-        if horizontal >= 4 or vertical >= 4
-            or (horizontal >= 3 and vertical >= 3) then
+        if horizontal >= 3 and vertical >= 3 then
             explosiveCandidate = explosiveCandidate or { row, column }
+        elseif horizontal >= 4 or vertical >= 4 then
+            directionalCandidate = directionalCandidate or { row, column }
         end
     end
 
     if explosiveCandidate then
         return explosiveCandidate[1], explosiveCandidate[2], "explosive"
+    end
+
+    if directionalCandidate then
+        return directionalCandidate[1], directionalCandidate[2], "directional"
     end
 
     return nil
@@ -450,9 +626,13 @@ function Board.FindValidMove(board)
                     local hasColorSpecial = firstCell and secondCell
                         and (firstCell.special == "color"
                             or secondCell.special == "color")
-                    local hasTwoBombs = firstCell and secondCell
-                        and firstCell.special == "explosive"
-                        and secondCell.special == "explosive"
+                    local firstIsBomb = firstCell
+                        and (firstCell.special == "explosive"
+                            or firstCell.special == "directional")
+                    local secondIsBomb = secondCell
+                        and (secondCell.special == "explosive"
+                            or secondCell.special == "directional")
+                    local hasTwoBombs = firstIsBomb and secondIsBomb
 
                     if hasColorSpecial or hasTwoBombs then
                         return row,

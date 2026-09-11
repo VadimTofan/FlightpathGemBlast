@@ -4,6 +4,9 @@ local SpecialEffects = {}
 
 local CLEAR_DURATIONS = {
     bomb = 0.28,
+    lineBomb = 0.34,
+    crossBomb = 0.38,
+    wideLineBomb = 0.38,
     spark = 0.34,
     bombCombo = 0.38,
 }
@@ -29,6 +32,28 @@ local function getEffectProgress(effect, row, column, progress)
 
     if effect.effectType == "spark" then
         delay = math.min(0.30, (rowDistance + columnDistance) * 0.025)
+    elseif effect.effectType == "lineBomb"
+        or effect.effectType == "crossBomb"
+        or effect.effectType == "wideLineBomb" then
+        local isHorizontal = rowDistance == 0
+        local isVertical = columnDistance == 0
+        local isWideHorizontal = effect.direction == "horizontal"
+            and rowDistance <= 1
+        local isWideVertical = effect.direction == "vertical"
+            and columnDistance <= 1
+        local isAffected = effect.effectType == "crossBomb"
+            and (isHorizontal or isVertical)
+            or effect.effectType == "lineBomb"
+                and ((effect.direction == "horizontal" and isHorizontal)
+                    or (effect.direction == "vertical" and isVertical))
+            or effect.effectType == "wideLineBomb"
+                and (isWideHorizontal or isWideVertical)
+
+        if not isAffected then
+            return nil
+        end
+
+        delay = math.min(0.28, math.max(rowDistance, columnDistance) * 0.04)
     else
         local distance = math.max(rowDistance, columnDistance)
 
@@ -60,6 +85,12 @@ local function getEffectColor(effect, isSource)
 
     if effect.effectType == "bombCombo" then
         return 1.00, 0.68, 0.12
+    end
+
+    if effect.effectType == "lineBomb"
+        or effect.effectType == "crossBomb"
+        or effect.effectType == "wideLineBomb" then
+        return 0.25, 0.85, 1.00
     end
 
     return 1.00, 0.48, 0.08

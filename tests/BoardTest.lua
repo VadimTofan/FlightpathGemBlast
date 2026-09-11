@@ -128,6 +128,19 @@ TestRunner.describe("Board.HasValidMove special gems", function()
         -- Then
         TestRunner.assertTrue(hasMove)
     end)
+
+    TestRunner.it("recognizes adjacent directional and area bombs", function()
+        -- Given
+        local board = sparseBoard()
+        board[4][4] = { gemType = 1, special = "directional" }
+        board[4][5] = { gemType = 2, special = "explosive" }
+
+        -- When
+        local hasMove = Board.HasValidMove(board)
+
+        -- Then
+        TestRunner.assertTrue(hasMove)
+    end)
 end)
 
 -- Hint move selection

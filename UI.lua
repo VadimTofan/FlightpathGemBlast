@@ -16,6 +16,8 @@ local GEM_TEXTURE_PATH = "Interface\\AddOns\\" .. addonName
     .. "\\Media\\Gems64\\"
 local BOMB_TEXTURE = "Interface\\AddOns\\" .. addonName
     .. "\\Media\\Bomb64.png"
+local COMPASS_TEXTURE = "Interface\\AddOns\\" .. addonName
+    .. "\\Media\\Compass64.png"
 local GEM_TEXTURES = {
     GEM_TEXTURE_PATH .. "Blue.png",
     GEM_TEXTURE_PATH .. "Red.png",
@@ -60,9 +62,13 @@ function UI:RenderBoard(board)
             local hasSpecial = cell.special ~= nil
             local isColorSpecial = cell.special == "color"
             local isExplosive = cell.special == "explosive"
-            local borderRed = isColorSpecial and 0.55 or 1
-            local borderGreen = isColorSpecial and 0.82 or 0.48
-            local borderBlue = isColorSpecial and 1 or 0.08
+            local isDirectional = cell.special == "directional"
+            local borderRed = isDirectional and 0.25
+                or (isColorSpecial and 0.55 or 1)
+            local borderGreen = isDirectional and 0.85
+                or (isColorSpecial and 0.82 or 0.48)
+            local borderBlue = isDirectional and 1
+                or (isColorSpecial and 1 or 0.08)
 
             setGemTexture(button.gem, cell.gemType)
             setCellVisualOffset(button, 0, 0)
@@ -80,7 +86,15 @@ function UI:RenderBoard(board)
             button.specialMarker:SetVertexColor(0.75, 0.9, 1, 1)
             button.specialMarker:SetShown(isColorSpecial)
             button.bombMarker:SetAlpha(1)
+            button.bombMarker:SetVertexColor(
+                isDirectional and 0.25 or 1,
+                isDirectional and 0.85 or 1,
+                1,
+                1
+            )
             button.bombMarker:SetShown(isExplosive)
+            button.directionalMarker:SetAlpha(1)
+            button.directionalMarker:SetShown(isDirectional)
             for _, border in ipairs(button.specialBorders) do
                 border:SetAlpha(1)
                 border:SetColorTexture(
@@ -316,6 +330,8 @@ setCellVisualOffset = function(button, x, y)
     button.specialMarker:SetPoint("CENTER", x, y)
     button.bombMarker:ClearAllPoints()
     button.bombMarker:SetPoint("TOPRIGHT", 1 + x, 1 + y)
+    button.directionalMarker:ClearAllPoints()
+    button.directionalMarker:SetPoint("TOPRIGHT", 1 + x, 1 + y)
 
     button.specialBorders.top:ClearAllPoints()
     button.specialBorders.top:SetPoint("TOPLEFT", 1 + x, -1 + y)
@@ -480,6 +496,7 @@ function UI:UpdateAnimationStep(step, progress)
             button.specialMarker:SetSize(gemSize, gemSize)
             button.specialMarker:SetAlpha(gemAlpha)
             button.bombMarker:SetAlpha(gemAlpha)
+            button.directionalMarker:SetAlpha(gemAlpha)
             for _, border in ipairs(button.specialBorders) do
                 border:SetAlpha(gemAlpha)
             end
@@ -677,6 +694,12 @@ local function createCell(parent, row, column)
     button.bombMarker:SetSize(24, 24)
     button.bombMarker:SetTexture(BOMB_TEXTURE)
     button.bombMarker:Hide()
+
+    button.directionalMarker = button:CreateTexture(nil, "OVERLAY")
+    button.directionalMarker:SetPoint("TOPRIGHT", 1, 1)
+    button.directionalMarker:SetSize(30, 30)
+    button.directionalMarker:SetTexture(COMPASS_TEXTURE)
+    button.directionalMarker:Hide()
 
     button.specialBorders = {}
 

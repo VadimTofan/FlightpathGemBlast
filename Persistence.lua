@@ -65,16 +65,24 @@ local function isValidBoard(board)
 
         for column = 1, 8 do
             local cell = board[row][column]
-            if type(cell) ~= "table"
-                or type(cell.gemType) ~= "number"
-                or cell.gemType < 1
-                or cell.gemType > 7 then
+            if type(cell) ~= "table" then
                 return false
             end
 
             if cell.special ~= nil
                 and cell.special ~= "explosive"
+                and cell.special ~= "directional"
                 and cell.special ~= "color" then
+                return false
+            end
+
+            local hasValidGemType = type(cell.gemType) == "number"
+                and cell.gemType >= 1
+                and cell.gemType <= 7
+            local isColorlessSpark = cell.special == "color"
+                and cell.gemType == nil
+
+            if not hasValidGemType and not isColorlessSpark then
                 return false
             end
         end

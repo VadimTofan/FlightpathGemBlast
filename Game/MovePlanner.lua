@@ -38,7 +38,7 @@ local function appendBombEffects(target, bombEffects, initialEffects)
     local excludedBombs
 
     for _, effect in ipairs(initialEffects) do
-        if effect.effectType == "bombCombo" then
+        if effect.excludedBombs then
             excludedBombs = effect.excludedBombs
             break
         end
@@ -103,7 +103,8 @@ local function addResolutionSteps(
     score,
     initialMatches,
     initialEffects,
-    random
+    random,
+    activationDirections
 )
     local cascadeDepth = 1
     local matches = initialMatches
@@ -125,7 +126,10 @@ local function addResolutionSteps(
             )
 
             if specialRow then
-                specialGemType = board[specialRow][specialColumn].gemType
+                if specialType ~= "color" then
+                    specialGemType = board[specialRow][specialColumn].gemType
+                end
+
                 matches[specialRow .. ":" .. specialColumn] = nil
             end
         end
@@ -134,7 +138,8 @@ local function addResolutionSteps(
         matches, bombEffects = Board.ExpandSpecialEffects(
             board,
             matches,
-            random
+            random,
+            activationDirections
         )
         appendBombEffects(effects, bombEffects, effects)
         local clearPositions = copyPositions(matches)
@@ -175,6 +180,7 @@ local function addResolutionSteps(
 
         cascadeDepth = cascadeDepth + 1
         initialMatches = nil
+        activationDirections = nil
         effects = {}
         matches = nil
     end
@@ -192,7 +198,8 @@ function MovePlanner.Plan(
     random
 )
     local board = cloneBoard(liveBoard)
-    local accepted, specialMatches, specialEffects = Board.TrySwap(
+    local accepted, specialMatches, specialEffects, activationDirections =
+        Board.TrySwap(
         board,
         fromRow,
         fromColumn,
@@ -230,7 +237,8 @@ function MovePlanner.Plan(
         score,
         specialMatches,
         specialEffects,
-        random
+        random,
+        activationDirections
     )
 
     if not Board.HasValidMove(board) then

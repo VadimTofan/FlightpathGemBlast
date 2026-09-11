@@ -30,6 +30,44 @@ end
 
 -- Move planning
 TestRunner.describe("MovePlanner.Plan", function()
+    TestRunner.it("uses the moved directional bomb swap axis", function()
+        -- Given
+        local board = patternedBoard()
+        board[4][4] = { gemType = 2, special = "directional" }
+        board[4][5] = cell(3)
+        board[3][5] = cell(2)
+        board[5][5] = cell(2)
+
+        -- When
+        local plan = MovePlanner.Plan(board, 0, 4, 4, 4, 5)
+
+        -- Then
+        local effects = plan.steps[2].effects
+        TestRunner.assertTrue(plan.accepted)
+        TestRunner.assertEqual("lineBomb", effects[1].effectType)
+        TestRunner.assertEqual("horizontal", effects[1].direction)
+    end)
+
+    TestRunner.it("creates a spark without a gem color", function()
+        -- Given
+        local board = patternedBoard()
+        for column = 1, 4 do
+            board[4][column] = cell(2)
+        end
+        board[4][5] = cell(3)
+        board[4][6] = cell(2)
+        math.randomseed(86420)
+
+        -- When
+        local plan = MovePlanner.Plan(board, 0, 4, 6, 4, 5)
+
+        -- Then
+        local settledBoard = plan.steps[3].board
+        TestRunner.assertTrue(plan.accepted)
+        TestRunner.assertEqual("color", settledBoard[4][5].special)
+        TestRunner.assertEqual(nil, settledBoard[4][5].gemType)
+    end)
+
     TestRunner.it("plans a valid move without changing the live board", function()
         -- Given
         local board = validSwapBoard()
