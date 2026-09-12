@@ -96,6 +96,7 @@ local function defaults()
         board = Board.Create(),
         score = 0,
         soundEnabled = true,
+        levelUpEmotesEnabled = true,
         leaderboardShown = true,
         publicLeaderboardEnabled = false,
         leaderboardMode = "party",
@@ -121,6 +122,8 @@ function Persistence.Normalize(savedData)
     normalized.board = savedData.board
     normalized.score = math.max(0, tonumber(savedData.score) or 0)
     normalized.soundEnabled = savedData.soundEnabled ~= false
+    normalized.levelUpEmotesEnabled =
+        savedData.levelUpEmotesEnabled ~= false
     normalized.leaderboardShown = savedData.leaderboardShown ~= false
     normalized.publicLeaderboardEnabled =
         savedData.publicLeaderboardEnabled == true

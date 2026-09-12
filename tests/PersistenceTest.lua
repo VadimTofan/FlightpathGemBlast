@@ -29,6 +29,32 @@ end)
 
 -- Saved data validation
 TestRunner.describe("Persistence.Normalize", function()
+    TestRunner.it("enables level-up emotes by default", function()
+        -- Given
+        local savedData = nil
+
+        -- When
+        local normalized = Persistence.Normalize(savedData)
+
+        -- Then
+        TestRunner.assertTrue(normalized.levelUpEmotesEnabled)
+    end)
+
+    TestRunner.it("preserves explicitly disabled level-up emotes", function()
+        -- Given
+        local Board = require("Game.Board")
+        local savedData = {
+            board = Board.Create(),
+            levelUpEmotesEnabled = false,
+        }
+
+        -- When
+        local normalized = Persistence.Normalize(savedData)
+
+        -- Then
+        TestRunner.assertFalse(normalized.levelUpEmotesEnabled)
+    end)
+
     TestRunner.it("enables flight auto-toggle by default", function()
         -- Given
         local savedData = nil

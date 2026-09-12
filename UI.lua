@@ -580,7 +580,8 @@ function UI:FinishAnimationPlan(plan)
     self:Refresh()
 
     local currentLevel = addon.controller:GetLevel()
-    if currentLevel > self.previousLevel then
+    if currentLevel > self.previousLevel
+        and GemBlastDB.levelUpEmotesEnabled then
         addon.Announcement.SendReachedLevels(
             self.previousLevel,
             currentLevel,
@@ -1035,18 +1036,33 @@ function UI:CreateMenu()
         self:Save()
     end)
 
+    self.levelUpEmotesButton = createMenuButton(
+        menuPanel,
+        "Level-up Emotes: On",
+        -216,
+        function()
+            GemBlastDB.levelUpEmotesEnabled =
+                not GemBlastDB.levelUpEmotesEnabled
+            self.levelUpEmotesButton:SetText(
+                GemBlastDB.levelUpEmotesEnabled
+                    and "Level-up Emotes: On"
+                    or "Level-up Emotes: Off"
+            )
+        end
+    )
+
     local interfaceLabel = menuPanel:CreateFontString(
         nil,
         "OVERLAY",
         "GameFontNormalSmall"
     )
-    interfaceLabel:SetPoint("TOPLEFT", 40, -222)
+    interfaceLabel:SetPoint("TOPLEFT", 40, -254)
     interfaceLabel:SetText("INTERFACE")
 
     self.scaleButton = createMenuButton(
         menuPanel,
         "Scale: 100%",
-        -240,
+        -272,
         function()
             local scale = self.frame:GetScale() + 0.1
             if scale > 1.21 then
@@ -1064,7 +1080,7 @@ function UI:CreateMenu()
         end
     )
 
-    createMenuButton(menuPanel, "Reset Position", -272, function()
+    createMenuButton(menuPanel, "Reset Position", -304, function()
         self.frame:ClearAllPoints()
         self.frame:SetPoint("CENTER")
         GemBlastDB.window = {
@@ -1216,6 +1232,11 @@ function UI:Create()
     )
     self.soundButton:SetText(
         addon.controller.soundEnabled and "Sound: On" or "Sound: Off"
+    )
+    self.levelUpEmotesButton:SetText(
+        GemBlastDB.levelUpEmotesEnabled
+            and "Level-up Emotes: On"
+            or "Level-up Emotes: Off"
     )
     self.scaleButton:SetText(
         string.format(

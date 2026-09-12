@@ -136,3 +136,45 @@ TestRunner.describe("UI close-in-combat option", function()
         TestRunner.assertTrue(hasCloseInCombat)
     end)
 end)
+
+TestRunner.describe("UI level-up emote option", function()
+    TestRunner.it("provides a persistent level-up emote button", function()
+        -- Given
+        local file = assert(io.open("UI.lua", "r"))
+        local source = file:read("*a")
+        file:close()
+
+        -- When
+        local hasButtonLabel = source:find(
+            '"Level-up Emotes: On"',
+            1,
+            true
+        ) ~= nil
+        local togglesSavedSetting = source:find(
+            "GemBlastDB.levelUpEmotesEnabled =",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(hasButtonLabel)
+        TestRunner.assertTrue(togglesSavedSetting)
+    end)
+
+    TestRunner.it("suppresses level announcements while disabled", function()
+        -- Given
+        local file = assert(io.open("UI.lua", "r"))
+        local source = file:read("*a")
+        file:close()
+
+        -- When
+        local checksSavedSetting = source:find(
+            "and GemBlastDB.levelUpEmotesEnabled then",
+            1,
+            true
+        ) ~= nil
+
+        -- Then
+        TestRunner.assertTrue(checksSavedSetting)
+    end)
+end)

@@ -69,6 +69,7 @@ The in-game menu provides controls for:
 - Opening the game automatically during flight paths.
 - Closing the game when combat begins.
 - Enabling or disabling sound.
+- Enabling or disabling level-up emotes.
 - Changing the window scale.
 - Resetting the window position.
 
